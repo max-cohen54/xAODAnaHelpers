@@ -29,6 +29,8 @@ public:
   std::string m_tauDetailStr = "";
   std::string m_METDetailStr = "";
   std::string m_METReferenceDetailStr = "";
+  std::string m_TrigMETDetailStr = "";
+  std::string m_TrigMETReferenceDetailStr = "";
   std::string m_photonDetailStr = "";
   std::string m_clusterDetailStr = "";
   std::string m_truthParticlesDetailStr = "";
@@ -51,6 +53,8 @@ public:
   std::string m_tauContainerName = "";
   std::string m_METContainerName = "";
   std::string m_METReferenceContainerName = "";
+  std::string m_TrigMETContainerName = "";
+  std::string m_TrigMETReferenceContainerName = "";
   std::string m_photonContainerName = "";
   std::string m_clusterContainerName = "";
   std::string m_clusterBranchName = "CaloCalTopoClusters";

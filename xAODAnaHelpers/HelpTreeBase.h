@@ -27,11 +27,13 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "xAODAnaHelpers/HelperClasses.h"
 #include "xAODAnaHelpers/EventInfo.h"
 #include "xAODAnaHelpers/MetContainer.h"
+#include "xAODAnaHelpers/TrigMetContainer.h"
 #include "xAODAnaHelpers/JetContainer.h"
 #include "xAODAnaHelpers/L1JetContainer.h"
 #include "xAODAnaHelpers/VertexContainer.h"
@@ -99,6 +101,7 @@ public:
 
   void AddTaus        (const std::string& detailStr = "", const std::string& tauName = "tau");
   void AddMET         (const std::string& detailStr = "", const std::string& metName = "met");
+  void AddTrigMET     (const std::string& detailStr = "", const std::string& metName = "trigmet");
 
   /**
    *  @brief  Helper function to lookup each fatjet container name/suffix combo in the internal map
@@ -182,6 +185,7 @@ public:
   void FillTaus( const xAOD::TauJetContainer* taus, const std::string& tauName = "tau" );
   void FillTau ( const xAOD::TauJet* tau,           const std::string& tauName = "tau" );
   void FillMET( const xAOD::MissingETContainer* met, const std::string& metName = "met" );
+  void FillTrigMET( const xAOD::TrigMissingETContainer* met, const std::string& metName = "trigmet" );
 
   void Fill();
   void ClearEvent();
@@ -199,6 +203,7 @@ public:
   void ClearTruthFatJets  (const std::string& truthFatJetName = "truth_fatjet");
   void ClearTaus          (const std::string& tauName = "tau" );
   void ClearMET           (const std::string& metName = "met");
+  void ClearTrigMET           (const std::string& metName = "trigmet");
   void ClearVertices      (const std::string& vertexName = "vertex");
   void ClearTruthVertices (const std::string& vertexName = "truth_vertex");
 
@@ -280,6 +285,10 @@ public:
     if(m_debug) Info("AddMETUser","Empty function called from HelpTreeBase %s for %s",detailStr.c_str(), metName.c_str());
     return;
   };
+  virtual void AddTrigMETUser(const std::string& detailStr = "", const std::string& metName = "trigmet")       {
+    if(m_debug) Info("AddTrigMETUser","Empty function called from HelpTreeBase %s for %s",detailStr.c_str(), metName.c_str());
+    return;
+  };
 
   virtual void ClearEventUser       ()     { return; };
   virtual void ClearTriggerUser     ()   { return; };
@@ -294,6 +303,7 @@ public:
   virtual void ClearTruthFatJetsUser(const std::string& /*truthFatJetName = "truth_fatjet"*/)   { return; };
   virtual void ClearTausUser        (const std::string& /*tauName = "tau"*/) 	    { return; };
   virtual void ClearMETUser         (const std::string& /*metName = "met"*/)       { return; };
+  virtual void ClearTrigMETUser         (const std::string& /*metName = "met"*/)       { return; };
 
   virtual void FillEventUser    ( const xAOD::EventInfo*  )        { return; };
   virtual void FillMuonsUser    ( const xAOD::Muon*,        const std::string& /*muonName = "muon"*/, const xAOD::Vertex* ) { return; };
@@ -315,6 +325,7 @@ public:
   virtual void FillTruthFatJetsUser( const xAOD::Jet* /*jet*/, int /*pvLocation = 0*/, const std::string& /*fatjetName = "truth_fatjet"*/   )            { return; };
   virtual void FillTausUser( const xAOD::TauJet*,           const std::string& /*tauName = "tau"*/  )            { return; };
   virtual void FillMETUser( const xAOD::MissingETContainer*, const std::string& /*metName = "met"*/ ) { return; };
+  virtual void FillTrigMETUser( const xAOD::TrigMissingETContainer*, const std::string& /*metName = "met"*/ ) { return; };
   virtual void FillTriggerUser( const xAOD::EventInfo*  )      { return; };
   virtual void FillJetTriggerUser()                            { return; };
 
@@ -425,6 +436,7 @@ protected:
   // met
   //
   std::map<std::string, xAH::MetContainer* > m_met;
+  std::map<std::string, xAH::TrigMetContainer* > m_trigmet;
 
   //
   // vertices
