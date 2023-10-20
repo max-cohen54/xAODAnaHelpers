@@ -366,6 +366,8 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_tauContainerName.empty() )           { helpTree->AddTaus(m_tauDetailStr);                               }
     if (!m_METContainerName.empty() )           { helpTree->AddMET(m_METDetailStr);                                }
     if (!m_METReferenceContainerName.empty() )  { helpTree->AddMET(m_METReferenceDetailStr, "referenceMet");       }
+    if (!m_TrigMETContainerName.empty() )           { helpTree->AddTrigMET(m_TrigMETDetailStr);                                }
+    if (!m_TrigMETReferenceContainerName.empty() )  { helpTree->AddTrigMET(m_TrigMETReferenceDetailStr, "referenceMet");       }
     if (!m_photonContainerName.empty() )        { helpTree->AddPhotons(m_photonDetailStr);                         }
     if (!m_truthParticlesContainerName.empty()) {
       for(unsigned int ll=0; ll<m_truthParticlesContainers.size();++ll){
@@ -625,6 +627,22 @@ EL::StatusCode TreeAlgo :: execute ()
       const xAOD::MissingETContainer* inMETCont(nullptr);
       ANA_CHECK( HelperFunctions::retrieve(inMETCont, m_METReferenceContainerName, m_event, m_store, msg()) );
       helpTree->FillMET( inMETCont, "referenceMet" );
+    }
+
+    if ( !m_TrigMETContainerName.empty() ) {
+      if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) ) continue;
+
+      const xAOD::TrigMissingETContainer* inTrigMETCont(nullptr);
+      ANA_CHECK( HelperFunctions::retrieve(inTrigMETCont, m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) );
+      helpTree->FillTrigMET( inTrigMETCont );
+    }
+
+    if ( !m_TrigMETReferenceContainerName.empty() ) {
+      if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETReferenceContainerName, m_event, m_store, msg()) ) continue;
+
+      const xAOD::TrigMissingETContainer* inTrigMETCont(nullptr);
+      ANA_CHECK( HelperFunctions::retrieve(inTrigMETCont, m_TrigMETReferenceContainerName, m_event, m_store, msg()) );
+      helpTree->FillTrigMET( inTrigMETCont, "referenceMet" );
     }
 
     if ( !m_photonContainerName.empty() ) {

@@ -91,6 +91,10 @@ HelpTreeBase::~HelpTreeBase() {
     for (auto met: m_met)
       delete met.second;
 
+    //mettrig
+    for (auto met: m_trigmet)
+      delete met.second;
+
     //jet
     for (auto jet: m_jets)
       delete jet.second;
@@ -1025,6 +1029,44 @@ void HelpTreeBase::ClearMET( const std::string& metName ) {
   thisMet->clear();
 
   this->ClearMETUser(metName);
+}
+
+
+/*********************
+ *
+ *     MET
+ *
+ ********************/
+void HelpTreeBase::AddTrigMET( const std::string& detailStr, const std::string& metName ) {
+
+  if(m_debug) Info("AddTrigMET()", "Adding Trig MET variables: %s", detailStr.c_str());
+
+  m_trigmet[metName] = new xAH::TrigMetContainer(metName, detailStr, m_units);
+
+  xAH::TrigMetContainer* thisMet = m_trigmet[metName];
+
+  thisMet->setBranches(m_tree);
+  this->AddTrigMETUser(detailStr, metName);
+}
+
+void HelpTreeBase::FillTrigMET( const xAOD::TrigMissingETContainer* met, const std::string& metName ) {
+
+  // Clear previous events
+  this->ClearTrigMET(metName);
+
+  xAH::TrigMetContainer* thisMet = m_trigmet[metName];
+
+  thisMet->FillTrigMET(met);
+
+  this->FillTrigMETUser(met, metName);
+}
+
+void HelpTreeBase::ClearTrigMET( const std::string& metName ) {
+  xAH::TrigMetContainer* thisMet = m_trigmet[metName];
+
+  thisMet->clear();
+
+  this->ClearTrigMETUser(metName);
 }
 
 
