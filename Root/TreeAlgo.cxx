@@ -59,6 +59,39 @@ EL::StatusCode TreeAlgo :: initialize ()
     ANA_MSG_ERROR( "The number of jet containers must be equal to the number of jet name branches. Exiting");
     return EL::StatusCode::FAILURE;
   }
+
+  // --------------------------
+  // EDITED IN HERE:
+  //std::cout << "ELECTRON 1!!" << std::endl;
+  std::istringstream ss_el_containers(m_elContainerName);
+  while ( std::getline(ss_el_containers, token, ' ') ){
+    m_elContainers.push_back(token);
+  }
+  std::istringstream ss_el_names(m_elBranchName);
+  while ( std::getline(ss_el_names, token, ' ') ){
+    m_elBranches.push_back(token);
+  }
+  if( !m_elContainerName.empty() && m_elContainers.size()!=m_elBranches.size()){
+    ANA_MSG_ERROR( "The number of electron containers must be equal to the number of elecron name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+
+
+
+  std::istringstream ss_mu_containers(m_muContainerName);
+  while ( std::getline(ss_mu_containers, token, ' ') ){
+    m_muContainers.push_back(token);
+  }
+  std::istringstream ss_mu_names(m_muBranchName);
+  while ( std::getline(ss_mu_names, token, ' ') ){
+    m_muBranches.push_back(token);
+  }
+  if( !m_muContainerName.empty() && m_muContainers.size()!=m_muBranches.size()){
+    ANA_MSG_ERROR( "The number of muon containers must be equal to the number of muon name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+  
+  // --------------------------
   std::istringstream ss_trig_containers(m_trigJetContainerName);
   while ( std::getline(ss_trig_containers, token, ' ') ){
     m_trigJetContainers.push_back(token);
@@ -141,7 +174,7 @@ EL::StatusCode TreeAlgo :: initialize ()
     return EL::StatusCode::FAILURE;
   }
 
-  // allow to store different variables for each jet collection (reco, trig, fat only, default: store the same)
+  // allow to store different variables for each jet collection (reco, trig, fat only, default: store the same) ------------------------- maybe also have to do this with electrons
   std::istringstream ss(m_jetDetailStr);
   while ( std::getline(ss, token, '|') ){
     m_jetDetails.push_back(token);
@@ -324,9 +357,31 @@ EL::StatusCode TreeAlgo :: execute ()
 
     // initialize all branch addresses since we just added this tree
     helpTree->AddEvent( m_evtDetailStr );
+    std::cout << m_trigDetailStr << std::endl;
     if (!m_trigDetailStr.empty() )              { helpTree->AddTrigger(m_trigDetailStr);                           }
-    if (!m_muContainerName.empty() )            { helpTree->AddMuons(m_muDetailStr);                               }
-    if (!m_elContainerName.empty() )            { helpTree->AddElectrons(m_elDetailStr);                           }
+
+
+
+    // ---------------------------------------------------
+    // EDITED IN HERE:
+
+    //if (!m_muContainerName.empty() )            { helpTree->AddMuons(m_muDetailStr);                               }
+    if (!m_muContainerName.empty() )           {
+      for(unsigned int ll=0; ll<m_muContainers.size();++ll){
+        helpTree->AddMuons       (m_muDetailStr, m_muBranches.at(ll));
+      }
+    }   
+
+    //if (!m_elContainerName.empty() )            { helpTree->AddElectrons(m_elDetailStr);                           }
+    //std::cout << "ELECTRON 2!!" << std::endl;
+    if (!m_elContainerName.empty() )           {
+      for(unsigned int ll=0; ll<m_elContainers.size();++ll){
+        //helpTree->AddElectrons       (m_elDetailStr, m_jetBranches.at(ll).c_str());
+        helpTree->AddElectrons       (m_elDetailStr, m_elBranches.at(ll));
+      }
+    }    
+
+    // ---------------------------------------------------
     if (!m_jetContainerName.empty() )           {
       for(unsigned int ll=0; ll<m_jetContainers.size();++ll){
         if(m_jetDetails.size()==1) helpTree->AddJets       (m_jetDetailStr, m_jetBranches.at(ll).c_str());
@@ -436,22 +491,74 @@ EL::StatusCode TreeAlgo :: execute ()
     }*/
 
     // for the containers the were supplied, fill the appropriate vectors
+
+    // -------------------------------------------------------------------------------------
+    // EDITED IN HERE:
+    // if ( !m_muContainerName.empty() ) {
+    //   if ( !HelperFunctions::isAvailable<xAOD::MuonContainer>(m_muContainerName + muSuffix, m_event, m_store, msg()) ) continue;
+
+    //   const xAOD::MuonContainer* inMuon(nullptr);
+    //   ANA_CHECK( HelperFunctions::retrieve(inMuon, m_muContainerName+muSuffix, m_event, m_store, msg()) );
+    //   helpTree->FillMuons( inMuon, primaryVertex );
+    // }
     if ( !m_muContainerName.empty() ) {
-      if ( !HelperFunctions::isAvailable<xAOD::MuonContainer>(m_muContainerName + muSuffix, m_event, m_store, msg()) ) continue;
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_muContainers.size(); ++ll ) { // Systs for all jet containers
+        const xAOD::MuonContainer* inMuon(nullptr);
+        if ( !HelperFunctions::isAvailable<xAOD::MuonContainer>(m_muContainers.at(ll)+muSuffix, m_event, m_store, msg()) ) {
+          ANA_MSG_DEBUG( "The muon container " + m_muContainers.at(ll)+muSuffix + " is not available. Skipping all remaining muon collections");
+          reject = true;
+          break;
+        }
+       
+        ANA_CHECK( HelperFunctions::retrieve(inMuon, m_muContainers.at(ll)+muSuffix, m_event, m_store, msg()) );
 
-      const xAOD::MuonContainer* inMuon(nullptr);
-      ANA_CHECK( HelperFunctions::retrieve(inMuon, m_muContainerName+muSuffix, m_event, m_store, msg()) );
-      helpTree->FillMuons( inMuon, primaryVertex );
+        helpTree->FillMuons( inMuon, primaryVertex, m_muBranches.at(ll) );
+        
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a muon container problem - not writing the event");
+        continue;
+      }
     }
 
+    // if ( !m_elContainerName.empty() ) {
+    //   if ( !HelperFunctions::isAvailable<xAOD::ElectronContainer>(m_elContainerName + elSuffix, m_event, m_store, msg()) ) continue;
+
+    //   const xAOD::ElectronContainer* inElec(nullptr);
+    //   ANA_CHECK( HelperFunctions::retrieve(inElec, m_elContainerName+elSuffix, m_event, m_store, msg()) );
+    //   helpTree->FillElectrons( inElec, primaryVertex );
+    // }
+
+    //std::cout << "ELECTRON 3!!" << std::endl;
     if ( !m_elContainerName.empty() ) {
-      if ( !HelperFunctions::isAvailable<xAOD::ElectronContainer>(m_elContainerName + elSuffix, m_event, m_store, msg()) ) continue;
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_elContainers.size(); ++ll ) { // Systs for all jet containers
+        const xAOD::ElectronContainer* inElec(nullptr);
+        if ( !HelperFunctions::isAvailable<xAOD::ElectronContainer>(m_elContainers.at(ll)+elSuffix, m_event, m_store, msg()) ) {
+          ANA_MSG_DEBUG( "The elecron container " + m_elContainers.at(ll)+elSuffix + " is not available. Skipping all remaining electron collections");
+          reject = true;
+          break;
+        }
+        //std::cout << "ELECTRON 3 MIDDLE 1!!" << std::endl;
+        ANA_CHECK( HelperFunctions::retrieve(inElec, m_elContainers.at(ll)+elSuffix, m_event, m_store, msg()) );
+        //std::cout << m_elContainers.at(ll)+elSuffix << std::endl;
 
-      const xAOD::ElectronContainer* inElec(nullptr);
-      ANA_CHECK( HelperFunctions::retrieve(inElec, m_elContainerName+elSuffix, m_event, m_store, msg()) );
-      helpTree->FillElectrons( inElec, primaryVertex );
+
+        //std::cout << "ELECTRON 3 MIDDLE 2!!" << std::endl;
+        helpTree->FillElectrons( inElec, primaryVertex, m_elBranches.at(ll) );
+        // helpTree->FillElectrons( inElec, HelperFunctions::getPrimaryVertexLocation(vertices, msg()), m_elBranches.at(ll) );
+        //std::cout << "ELECTRON 3 MIDDLE 3!!" << std::endl;
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was an electron container problem - not writing the event");
+        continue;
+      }
     }
-
+    //std::cout << "ELECTRON 3 END!!" << std::endl;
+    // -------------------------------------------------------------------------------------
     if ( !m_jetContainerName.empty() ) {
       bool reject = false;
       for ( unsigned int ll = 0; ll < m_jetContainers.size(); ++ll ) { // Systs for all jet containers

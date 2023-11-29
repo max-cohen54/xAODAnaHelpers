@@ -42,6 +42,8 @@ public:
   std::string m_elContainerName = "";
   std::string m_jetContainerName = "";
   std::string m_jetBranchName = "jet";
+  std::string m_elBranchName = "el"; // -------------------------------
+  std::string m_muBranchName = "muon";
   std::string m_truthJetContainerName = "";
   std::string m_truthJetBranchName = "truthJet";
   std::string m_trigJetContainerName = "";
@@ -88,6 +90,8 @@ protected:
   std::vector<std::string> m_fatJetDetails; //!
 
   std::vector<std::string> m_jetContainers; //!
+  std::vector<std::string> m_elContainers; //! -------------------------------------
+  std::vector<std::string> m_muContainers;
   std::vector<std::string> m_truthJetContainers; //!
   std::vector<std::string> m_trigJetContainers; //!
   std::vector<std::string> m_fatJetContainers; //!
@@ -96,6 +100,8 @@ protected:
   std::vector<std::string> m_truthParticlesContainers; //!
 
   std::vector<std::string> m_jetBranches; //!
+  std::vector<std::string> m_elBranches; //! ---------------------------------------
+  std::vector<std::string> m_muBranches;
   std::vector<std::string> m_truthJetBranches; //!
   std::vector<std::string> m_trigJetBranches; //!
   std::vector<std::string> m_fatJetBranches; //!
