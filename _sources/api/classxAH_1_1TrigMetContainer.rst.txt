@@ -1,0 +1,16 @@
+.. _exhale_class_classxAH_1_1TrigMetContainer:
+
+Class TrigMetContainer
+======================
+
+- Defined in :ref:`file_xAODAnaHelpers_TrigMetContainer.h`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: xAH::TrigMetContainer
+   :members:
+   :protected-members:
+   :undoc-members:

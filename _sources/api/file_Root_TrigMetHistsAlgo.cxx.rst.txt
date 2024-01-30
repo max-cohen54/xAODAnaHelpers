@@ -1,0 +1,56 @@
+
+.. _file_Root_TrigMetHistsAlgo.cxx:
+
+File TrigMetHistsAlgo.cxx
+=========================
+
+|exhale_lsh| :ref:`Parent directory <dir_Root>` (``Root``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``Root/TrigMetHistsAlgo.cxx``)
+------------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_Root_TrigMetHistsAlgo.cxx.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``AthContainers/ConstDataVector.h``
+
+- ``EventLoop/Job.h``
+
+- ``EventLoop/StatusCode.h``
+
+- ``EventLoop/Worker.h``
+
+- ``xAODAnaHelpers/HelperFunctions.h`` (:ref:`file_xAODAnaHelpers_HelperFunctions.h`)
+
+- ``xAODAnaHelpers/TrigMetHistsAlgo.h`` (:ref:`file_xAODAnaHelpers_TrigMetHistsAlgo.h`)
+
+- ``xAODEventInfo/EventInfo.h``
+
+
+
+
+
+
+Functions
+---------
+
+
+- :ref:`exhale_function_TrigMetHistsAlgo_8cxx_1a6103c73d2e2ad54e60862185520a36c1`
+

@@ -1,0 +1,26 @@
+.. _exhale_class_classHistogramManager:
+
+Class HistogramManager
+======================
+
+- Defined in :ref:`file_xAODAnaHelpers_HistogramManager.h`
+
+
+Inheritance Relationships
+-------------------------
+
+Derived Types
+*************
+
+- ``public MetHists`` (:ref:`exhale_class_classMetHists`)
+- ``public TrigMetHists`` (:ref:`exhale_class_classTrigMetHists`)
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: HistogramManager
+   :members:
+   :protected-members:
+   :undoc-members:

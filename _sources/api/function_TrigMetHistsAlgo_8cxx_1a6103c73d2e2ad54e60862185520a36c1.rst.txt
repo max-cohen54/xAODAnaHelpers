@@ -1,0 +1,13 @@
+.. _exhale_function_TrigMetHistsAlgo_8cxx_1a6103c73d2e2ad54e60862185520a36c1:
+
+Function ClassImp(TrigMetHistsAlgo)
+===================================
+
+- Defined in :ref:`file_Root_TrigMetHistsAlgo.cxx`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: ClassImp(TrigMetHistsAlgo)

@@ -1,0 +1,25 @@
+.. _exhale_class_classTrigMetHists:
+
+Class TrigMetHists
+==================
+
+- Defined in :ref:`file_xAODAnaHelpers_TrigMetHists.h`
+
+
+Inheritance Relationships
+-------------------------
+
+Base Type
+*********
+
+- ``public HistogramManager`` (:ref:`exhale_class_classHistogramManager`)
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: TrigMetHists
+   :members:
+   :protected-members:
+   :undoc-members:
