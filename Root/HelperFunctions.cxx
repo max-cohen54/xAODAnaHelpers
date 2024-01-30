@@ -401,6 +401,8 @@ std::vector< CP::SystematicSet > HelperFunctions::getListofSystematics(const CP:
         }
 
         outSystList.back().insert(CP::SystematicVariation (syst.basename(), systVal));
+        outSystList.push_back(CP::SystematicSet());
+        outSystList.back().insert(CP::SystematicVariation (syst.basename(), -1.0*fabs(systVal)));
 
       } else {
       // not a continuous system
@@ -539,6 +541,7 @@ HelperFunctions::ShowerType HelperFunctions::getMCShowerType(const std::string& 
   else if(tmp_name.Contains("SH_2210")) return Sherpa2210;
   else if(tmp_name.Contains("SH_2211")) return Sherpa2210;
   else if(tmp_name.Contains("SH_2212")) return Sherpa2210;
+  else if(tmp_name.Contains("SH_2214")) return Sherpa2210;
   else if(tmp_name.Contains("SHERPA")) return Sherpa22;
   else return Unknown;
 }

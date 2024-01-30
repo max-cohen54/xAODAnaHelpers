@@ -300,6 +300,9 @@ namespace HelperClasses {
     bool m_passSel;
     bool m_passOR;
 
+    bool m_doLRT;
+    bool m_closeByCorr;
+
     bool m_recoEff_sysNames;
     bool m_isoEff_sysNames;
     bool m_trigEff_sysNames;
@@ -370,6 +373,8 @@ namespace HelperClasses {
     std::vector< std::string > m_trigWPs;
     bool m_passSel;
     bool m_passOR;
+    bool m_doLRT;
+    bool m_closeByCorr;
     ElectronInfoSwitch(const std::string configStr) : IParticleInfoSwitch(configStr) { initialize(); };
     virtual ~ElectronInfoSwitch() {}
   protected:
@@ -527,6 +532,7 @@ namespace HelperClasses {
     bool m_layer;
     bool m_trackPV;
     bool m_trackAll;
+    bool m_fJvt;
     bool m_chargedPFOPV;
     bool m_jvt;
     bool m_NNJvt;
@@ -662,7 +668,7 @@ namespace HelperClasses {
              They require additional working point pattern using ``TAUEFF_XYZ`` for combined scale factors, and ``TRIG_XYZ``
              for trigger scale factors. ``XYZ`` in the pattern should be replaced using the working point name, for example::
 
-                 m_configStr = "... TAUEFF_EleOLRElectronEleBDTLoose_TauIDMedium ... TRIG_EleOLRElectronEleBDTMedium_TauIDLoose_TrigMyTriggerMenu"
+                 m_configStr = "... TAUEFF_EleOLRElectronEleRNNLoose_TauIDMedium ... TRIG_EleOLRElectronEleRNNMedium_TauIDLoose_TrigMyTriggerMenu"
 
              Notice that the working point for TAUEFF is a combination of two working points from EleOLRElectron and TauID.
 

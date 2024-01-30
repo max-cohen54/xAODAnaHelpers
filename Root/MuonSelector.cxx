@@ -133,7 +133,7 @@ EL::StatusCode MuonSelector :: initialize ()
 
     // retrieve the file in which the cutflow hists are stored
     //
-    TFile *file     = wk()->getOutputFile ("cutflow");
+    TFile *file     = wk()->getOutputFile (m_cutFlowStreamName);
 
     // retrieve the event cutflows
     //
@@ -150,6 +150,7 @@ EL::StatusCode MuonSelector :: initialize ()
     m_mu_cutflow_eta_and_quaility_cut = m_mu_cutflowHist_1->GetXaxis()->FindBin("eta_and_quality_cut");
     m_mu_cutflow_ptmax_cut            = m_mu_cutflowHist_1->GetXaxis()->FindBin("ptmax_cut");
     m_mu_cutflow_ptmin_cut            = m_mu_cutflowHist_1->GetXaxis()->FindBin("ptmin_cut");
+    m_mu_cutflow_ptnan_check          = m_mu_cutflowHist_1->GetXaxis()->FindBin("ptNaN_check");
     m_mu_cutflow_type_cut             = m_mu_cutflowHist_1->GetXaxis()->FindBin("type_cut");
     m_mu_cutflow_z0sintheta_cut       = m_mu_cutflowHist_1->GetXaxis()->FindBin("z0sintheta_cut");
     m_mu_cutflow_d0_cut               = m_mu_cutflowHist_1->GetXaxis()->FindBin("d0_cut");
@@ -166,6 +167,7 @@ EL::StatusCode MuonSelector :: initialize ()
       m_mu_cutflow_eta_and_quaility_cut = m_mu_cutflowHist_2->GetXaxis()->FindBin("eta_and_quality_cut");
       m_mu_cutflow_ptmax_cut		 = m_mu_cutflowHist_2->GetXaxis()->FindBin("ptmax_cut");
       m_mu_cutflow_ptmin_cut		 = m_mu_cutflowHist_2->GetXaxis()->FindBin("ptmin_cut");
+      m_mu_cutflow_ptnan_check   = m_mu_cutflowHist_2->GetXaxis()->FindBin("ptNaN_check");
       m_mu_cutflow_type_cut		 = m_mu_cutflowHist_2->GetXaxis()->FindBin("type_cut");
       m_mu_cutflow_z0sintheta_cut	 = m_mu_cutflowHist_2->GetXaxis()->FindBin("z0sintheta_cut");
       m_mu_cutflow_d0_cut		 = m_mu_cutflowHist_2->GetXaxis()->FindBin("d0_cut");
@@ -252,6 +254,7 @@ EL::StatusCode MuonSelector :: initialize ()
     ANA_MSG_DEBUG( "Adding isolation WP " << m_IsoKeys.at(0) << " to IsolationSelectionTool" );
     ANA_CHECK( m_isolationSelectionTool_handle.setProperty("MuonWP", (m_IsoKeys.at(0)).c_str()));
     ANA_CHECK( m_isolationSelectionTool_handle.setProperty("OutputLevel", msg().level() ));
+    if (m_isoDecSuffix!="") ANA_CHECK( m_isolationSelectionTool_handle.setProperty("IsoDecSuffix", m_isoDecSuffix) );
     ANA_CHECK( m_isolationSelectionTool_handle.retrieve());
     ANA_MSG_DEBUG("Retrieved tool: " << m_isolationSelectionTool_handle);
     m_isolationSelectionTool = dynamic_cast<CP::IsolationSelectionTool*>(m_isolationSelectionTool_handle.get() ); // see header file for why
@@ -290,34 +293,48 @@ EL::StatusCode MuonSelector :: initialize ()
   //
   // **************************************
   if( !( m_singleMuTrigChains.empty() && m_diMuTrigChains.empty() ) ) {
-    if( !isPHYS() ) {
-      // Grab the TrigDecTool from the ToolStore
-      if(!m_trigDecTool_handle.isUserConfigured()){
-        ANA_MSG_FATAL("A configured " << m_trigDecTool_handle.typeAndName() << " must have been previously created! Are you creating one in xAH::BasicEventSelection?" );
-        return EL::StatusCode::FAILURE;
-      }
-      ANA_CHECK( m_trigDecTool_handle.retrieve());
-      ANA_MSG_DEBUG("Retrieved tool: " << m_trigDecTool_handle);
 
-      ANA_CHECK( m_scoreTool.retrieve());
+    // grab the TrigDecTool from the ToolStore
+    if(!m_trigDecTool_handle.isUserConfigured()){
+      ANA_MSG_FATAL("A configured " << m_trigDecTool_handle.typeAndName() << " must have been previously created! Are you creating one in xAH::BasicEventSelection?" );
+      return EL::StatusCode::FAILURE;
+    }
+    ANA_CHECK( m_trigDecTool_handle.retrieve());
+    ANA_MSG_DEBUG("Retrieved tool: " << m_trigDecTool_handle);
 
-      //  everything went fine, let's initialise the tool!
-      m_trigMuonMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchingTool/MatchingTool");
+    // in AB we need to explicitly retrieve this tool, see https://twiki.cern.ch/twiki/bin/viewauth/Atlas/R22TriggerAnalysis
+    ANA_CHECK( m_scoreTool.retrieve());
+
+    // Run3 got a new trigger navigation
+    if (m_useRun3navigation) {
+      m_trigMuonMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::R3MatchingTool/TrigR3MatchingTool");
       ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "TrigDecisionTool", m_trigDecTool_handle ));
       ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "ScoringTool", m_scoreTool ));
       ANA_CHECK( m_trigMuonMatchTool_handle.setProperty("OutputLevel", msg().level() ));
       ANA_CHECK( m_trigMuonMatchTool_handle.retrieve());
       ANA_MSG_DEBUG("Retrieved tool: " << m_trigMuonMatchTool_handle);
-    } else { // For DAOD_PHYS samples
-      m_trigMuonMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchFromCompositeTool/MatchFromCompositeTool");
-      ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "OutputLevel", msg().level() ));
-      if (!m_trigInputPrefix.empty()){
-        ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "InputPrefix", m_trigInputPrefix ));
-      }
-      ANA_CHECK( m_trigMuonMatchTool_handle.retrieve());
-      ANA_MSG_DEBUG("Retrieved tool: " << m_trigMuonMatchTool_handle);
     }
-
+    // otherwise we have to configure the Run2-style navigation
+    else {
+      if( !isPHYS() ) {
+        m_trigMuonMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchingTool/MatchingTool");
+        ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "TrigDecisionTool", m_trigDecTool_handle ));
+        ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "ScoringTool", m_scoreTool ));
+        ANA_CHECK( m_trigMuonMatchTool_handle.setProperty("OutputLevel", msg().level() ));
+        ANA_CHECK( m_trigMuonMatchTool_handle.retrieve());
+        ANA_MSG_DEBUG("Retrieved tool: " << m_trigMuonMatchTool_handle);
+      }
+      else { // For DAOD_PHYS samples
+        m_trigMuonMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchFromCompositeTool/MatchFromCompositeTool");
+        ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "OutputLevel", msg().level() ));
+        if (!m_trigInputPrefix.empty()){
+          ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "InputPrefix", m_trigInputPrefix ));
+          ANA_CHECK( m_trigMuonMatchTool_handle.setProperty( "RemapBrokenLinks", true) );
+        }
+        ANA_CHECK( m_trigMuonMatchTool_handle.retrieve());
+        ANA_MSG_DEBUG("Retrieved tool: " << m_trigMuonMatchTool_handle);
+      }
+    }
   } else {
 
     m_doTrigMatch = false;
@@ -780,9 +797,20 @@ int MuonSelector :: passCuts( const xAOD::Muon* muon, const xAOD::Vertex *primar
   isLooseQDecor( *muon )     = ( this_quality <= static_cast<int>(xAOD::Muon::Loose) )     ? 1 : 0;
   isMediumQDecor( *muon )    = ( this_quality <= static_cast<int>(xAOD::Muon::Medium) )    ? 1 : 0;
   isTightQDecor( *muon )     = ( this_quality <= static_cast<int>(xAOD::Muon::Tight) )     ? 1 : 0;
+
+  bool acceptMuon = (bool)m_muonSelectionTool_handle->accept( *muon );
+
+  if ( m_doLRT ) {
+    static SG::AuxElement::Decorator< char > passIDcuts("passIDcuts");
+    static SG::AuxElement::Accessor< char > isLRTmuon("isLRT");
+    passIDcuts( *muon ) = m_muonSelectionTool_handle->passedIDCuts( *muon ) ? 1 : 0;
+    if ( isLRTmuon.isAvailable(*muon) && isLRTmuon(*muon) ) { //checks if a muon is LRT
+      acceptMuon = this_quality <= m_muonQuality; //LRT WP do not have the ID cuts applied so use getQuality()
+    }
+  }
+
   ANA_MSG_DEBUG( "Doing muon quality" );
-  // this will accept the muon based on the settings at initialization : eta, ID track info, muon quality
-  if ( ! m_muonSelectionTool_handle->accept( *muon ) ) {
+  if ( !acceptMuon ) {
     ANA_MSG_DEBUG( "Muon failed requirements of MuonSelectionTool.");
     return 0;
   }
@@ -816,6 +844,19 @@ int MuonSelector :: passCuts( const xAOD::Muon* muon, const xAOD::Vertex *primar
   }
   if (!m_isUsedBefore && m_useCutFlow) m_mu_cutflowHist_1->Fill( m_mu_cutflow_ptmin_cut, 1 );
   if ( m_isUsedBefore && m_useCutFlow ) { m_mu_cutflowHist_2->Fill( m_mu_cutflow_ptmin_cut, 1 ); }
+
+  // *********************************************************************************************************************************************************************
+  //
+  // pT NaN check
+  //
+  if ( m_pT_NaNcheck ) {
+    if ( muon->pt() != muon->pt() ) {
+      ANA_MSG_DEBUG( "Muon failed pT NaN check.");
+      return 0;
+    }
+  }
+  if (!m_isUsedBefore && m_useCutFlow) m_mu_cutflowHist_1->Fill( m_mu_cutflow_ptnan_check, 1 );
+  if ( m_isUsedBefore && m_useCutFlow ) { m_mu_cutflowHist_2->Fill( m_mu_cutflow_ptnan_check, 1 ); }
 
   // *********************************************************************************************************************************************************************
   //

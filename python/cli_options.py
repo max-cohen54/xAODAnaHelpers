@@ -62,6 +62,12 @@ standard = {
         "default": False,
         "help": "Running on AFII",
     },
+    "isAF3": {
+        "action": "store_true",
+        "dest": "is_AF3",
+        "default": False,
+        "help": "Running on AF3",
+    },
     "extraOptions": {
         "dest": "extra_options",
         "metavar": "[param=val]",
@@ -120,6 +126,12 @@ standard = {
         "type": str,
         "nargs": "+",
         "default": [],
+    },
+    "autoFlags": {
+        "action": "store_true",
+        "help": "If enabled, meta flags will be auto read from input files (available 24.2.29 onwards).",
+        "dest": "auto_flags",
+        "default": False,
     },
 }
 

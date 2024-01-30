@@ -127,6 +127,8 @@ EL::StatusCode BJetEfficiencyCorrector :: initialize ()
   if (m_taggerName == "DL1dv00")   { taggerOK = true; m_getScaleFactors = false; }
   if (m_taggerName == "DL1dv01")   { taggerOK = true; m_getScaleFactors =  true; }
   if (m_taggerName == "GN120220509")   { taggerOK = true; m_getScaleFactors =  false; }
+  if (m_taggerName == "GN2v00LegacyWP")   { taggerOK = true; m_getScaleFactors =  false; }
+  if (m_taggerName == "GN2v00NewAliasWP")   { taggerOK = true; m_getScaleFactors =  false; }
 
   if( !opOK || !taggerOK ) {
     ANA_MSG_ERROR( "Requested tagger/operating point is not known to xAH. Arrow v Indian? " << m_taggerName << "/" << m_operatingPt);
@@ -253,6 +255,10 @@ EL::StatusCode BJetEfficiencyCorrector :: initialize ()
 	ANA_CHECK( m_BJetEffSFTool_handle.setProperty("EfficiencyTCalibrations"    ,  calibration));
 	ANA_CHECK( m_BJetEffSFTool_handle.setProperty("EfficiencyLightCalibrations",  calibration));
       }
+
+    ANA_CHECK( m_BJetEffSFTool_handle.setProperty("EigenvectorReductionB"        ,  m_EigenvectorReductionB) );
+    ANA_CHECK( m_BJetEffSFTool_handle.setProperty("EigenvectorReductionC"        ,  m_EigenvectorReductionC) );
+    ANA_CHECK( m_BJetEffSFTool_handle.setProperty("EigenvectorReductionLight"    ,  m_EigenvectorReductionLight) );
 
     ANA_CHECK( m_BJetEffSFTool_handle.retrieve());
     ANA_MSG_DEBUG("Retrieved tool: " << m_BJetEffSFTool_handle);
@@ -408,6 +414,17 @@ EL::StatusCode BJetEfficiencyCorrector :: executeEfficiencyCorrection(const xAOD
   //
   for( const xAOD::Jet* jet_itr : *(inJets)){
 
+    if(abs(jet_itr->eta()) > 2.5){
+      if(!m_useContinuous){
+        dec_isBTag( *jet_itr ) = 0;
+        dec_isBTagOR( *jet_itr ) = 0;
+      }else{
+        dec_Quantile( *jet_itr ) = -1;
+      }
+      if(m_useContinuous || m_alwaysGetTagWeight) dec_Weight( *jet_itr) = 1;
+      continue;
+    }
+
     if(!m_useContinuous){
       // get tagging decision
       ANA_MSG_DEBUG(" Getting tagging decision ");
@@ -471,6 +488,13 @@ EL::StatusCode BJetEfficiencyCorrector :: executeEfficiencyCorrection(const xAOD
 
           for( const xAOD::Jet* jet_itr : *(inJets))
 	    {
+              if(abs(jet_itr->eta()) > 2.5){
+                if(!dec_sfBTag.isAvailable( *jet_itr ))
+	                dec_sfBTag     ( *jet_itr ) = std::vector<float>({1.});
+                if(m_useContinuous && !dec_ineffsfBTag.isAvailable( *jet_itr ))
+	                dec_ineffsfBTag( *jet_itr ) = std::vector<float>({1.});
+                continue;
+              }
               if(m_setMapIndex){ // select an efficiency map for use in MC/MC and inefficiency scale factors, based on user specified selection of efficiency maps
                 auto FlavLabel = getFlavorLabel(*jet_itr);
                 auto DSID      = eventInfo->mcChannelNumber();

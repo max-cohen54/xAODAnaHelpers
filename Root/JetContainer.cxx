@@ -164,6 +164,18 @@ JetContainer::JetContainer(const std::string& name, const std::string& detailStr
       m_JvtEff_SF_Tight  = new std::vector< std::vector<float> > ();
     }
   }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "FixedEffPt" ) {
+    m_JvtPass_FixedEffPt   = new std::vector<int>();
+    if ( m_mc ) {
+      m_JvtEff_SF_FixedEffPt = new std::vector< std::vector<float> > ();
+    }
+  }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "TightFwd" ) {
+    m_JvtPass_TightFwd    = new std::vector<int>();
+    if ( m_mc ) {
+      m_JvtEff_SF_TightFwd  = new std::vector< std::vector<float> > ();
+    }
+  }
   if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sffJVTName == "Loose" ) {
     m_fJvtPass_Loose   = new std::vector<int>();
     if ( m_mc ) {
@@ -181,6 +193,10 @@ JetContainer::JetContainer(const std::string& name, const std::string& detailStr
     if ( m_mc ) {
       m_fJvtEff_SF_Tight  = new std::vector< std::vector<float> > ();
     }
+  }
+
+  if (m_infoSwitch.m_fJvt) {
+    m_fJvt = new std::vector<float>();
   }
 
   if (m_infoSwitch.m_NNJvt) {
@@ -256,6 +272,14 @@ JetContainer::JetContainer(const std::string& name, const std::string& detailStr
     m_GN1_pu                            =new std::vector<float>();
     m_GN1_pc                            =new std::vector<float>();
     m_GN1_pb                            =new std::vector<float>();
+    m_GN2v00LegacyWP                    =new std::vector<float>();
+    m_GN2v00LegacyWP_pu                 =new std::vector<float>();
+    m_GN2v00LegacyWP_pc                 =new std::vector<float>();
+    m_GN2v00LegacyWP_pb                 =new std::vector<float>();
+    m_GN2v00NewAliasWP                  =new std::vector<float>();
+    m_GN2v00NewAliasWP_pu               =new std::vector<float>();
+    m_GN2v00NewAliasWP_pc               =new std::vector<float>();
+    m_GN2v00NewAliasWP_pb               =new std::vector<float>();
     m_HadronConeExclTruthLabelID        =new std::vector<int>();
     m_HadronConeExclExtendedTruthLabelID=new std::vector<int>();
 
@@ -590,6 +614,10 @@ JetContainer::~JetContainer()
     delete m_Jvt;
   }
 
+  if (m_infoSwitch.m_fJvt){
+    delete m_fJvt;
+  }
+
   if (m_infoSwitch.m_NNJvt){
     delete m_NNJvt;
     delete m_NNJvtPass;
@@ -611,6 +639,18 @@ JetContainer::~JetContainer()
     delete m_JvtPass_Tight;
     if ( m_mc ) {
       delete m_JvtEff_SF_Tight;
+    }
+  }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "FixedEffPt" ) {
+    delete m_JvtPass_FixedEffPt;
+    if ( m_mc ) {
+      delete m_JvtEff_SF_FixedEffPt;
+    }
+  }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "TightFwd" ) {
+    delete m_JvtPass_TightFwd;
+    if ( m_mc ) {
+      delete m_JvtEff_SF_TightFwd;
     }
   }
   if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sffJVTName == "Loose" ) {
@@ -702,6 +742,14 @@ JetContainer::~JetContainer()
     delete m_GN1_pu;
     delete m_GN1_pc;
     delete m_GN1_pb;
+    delete m_GN2v00LegacyWP;
+    delete m_GN2v00LegacyWP_pu;
+    delete m_GN2v00LegacyWP_pc;
+    delete m_GN2v00LegacyWP_pb;
+    delete m_GN2v00NewAliasWP;
+    delete m_GN2v00NewAliasWP_pu;
+    delete m_GN2v00NewAliasWP_pc;
+    delete m_GN2v00NewAliasWP_pb;
 
     delete m_HadronConeExclTruthLabelID;
     delete m_HadronConeExclExtendedTruthLabelID;
@@ -1008,6 +1056,14 @@ void JetContainer::setTree(TTree *tree)
       connectBranch<float>(tree,"GN1_pu"                            ,&m_GN1_pu  );
       connectBranch<float>(tree,"GN1_pc"                            ,&m_GN1_pc  );
       connectBranch<float>(tree,"GN1_pb"                            ,&m_GN1_pb  );
+      connectBranch<float>(tree,"GN2v00LegacyWP"                    ,&m_GN2v00LegacyWP     );
+      connectBranch<float>(tree,"GN2v00LegacyWP_pu"                 ,&m_GN2v00LegacyWP_pu  );
+      connectBranch<float>(tree,"GN2v00LegacyWP_pc"                 ,&m_GN2v00LegacyWP_pc  );
+      connectBranch<float>(tree,"GN2v00LegacyWP_pb"                 ,&m_GN2v00LegacyWP_pb  );
+      connectBranch<float>(tree,"GN2v00NewAliasWP"                  ,&m_GN2v00NewAliasWP     );
+      connectBranch<float>(tree,"GN2v00NewAliasWP_pu"               ,&m_GN2v00NewAliasWP_pu  );
+      connectBranch<float>(tree,"GN2v00NewAliasWP_pc"               ,&m_GN2v00NewAliasWP_pc  );
+      connectBranch<float>(tree,"GN2v00NewAliasWP_pb"               ,&m_GN2v00NewAliasWP_pb  );
       connectBranch<int>  (tree,"HadronConeExclTruthLabelID"        ,&m_HadronConeExclTruthLabelID);
       connectBranch<int>  (tree,"HadronConeExclExtendedTruthLabelID",&m_HadronConeExclExtendedTruthLabelID);
     }
@@ -1238,7 +1294,6 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
       jet.Jvt       =m_Jvt       ->at(idx);
     }
 
-
   if ( m_infoSwitch.m_chargedPFOPV ) {
     jet.SumPtChargedPFOPt500PV=m_SumPtChargedPFOPt500PV->at(idx);
     jet.fCharged=m_fCharged->at(idx);
@@ -1269,6 +1324,15 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
       if(m_GN1_pu)      jet.GN1_pu      =m_GN1_pu      ->at(idx);
       if(m_GN1_pc)      jet.GN1_pc      =m_GN1_pc      ->at(idx);
       if(m_GN1_pb)      jet.GN1_pb      =m_GN1_pb      ->at(idx);
+      if(m_GN2v00LegacyWP)    jet.GN2v00LegacyWP    =m_GN2v00LegacyWP    ->at(idx);
+      if(m_GN2v00LegacyWP_pu) jet.GN2v00LegacyWP_pu =m_GN2v00LegacyWP_pu ->at(idx);
+      if(m_GN2v00LegacyWP_pc) jet.GN2v00LegacyWP_pc =m_GN2v00LegacyWP_pc ->at(idx);
+      if(m_GN2v00LegacyWP_pb) jet.GN2v00LegacyWP_pb =m_GN2v00LegacyWP_pb ->at(idx);
+      if(m_GN2v00NewAliasWP)    jet.GN2v00NewAliasWP    =m_GN2v00NewAliasWP    ->at(idx);
+      if(m_GN2v00NewAliasWP_pu) jet.GN2v00NewAliasWP_pu =m_GN2v00NewAliasWP_pu ->at(idx);
+      if(m_GN2v00NewAliasWP_pc) jet.GN2v00NewAliasWP_pc =m_GN2v00NewAliasWP_pc ->at(idx);
+      if(m_GN2v00NewAliasWP_pb) jet.GN2v00NewAliasWP_pb =m_GN2v00NewAliasWP_pb ->at(idx);
+
       //std::cout << m_HadronConeExclTruthLabelID->size() << std::endl;
       if(m_HadronConeExclTruthLabelID)         jet.HadronConeExclTruthLabelID        =m_HadronConeExclTruthLabelID        ->at(idx);
       if(m_HadronConeExclExtendedTruthLabelID) jet.HadronConeExclExtendedTruthLabelID=m_HadronConeExclExtendedTruthLabelID->at(idx);
@@ -1401,7 +1465,7 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
 	  jet.is_DL1r_Continuous=       btag->m_isTag->at(idx);
 	  jet.SF_DL1r_Continuous=(m_mc)?btag->m_sf   ->at(idx):dummy1;
 	  break;
-	//DL1dv01 has preliminary rel22 pre-rec SF uncertainties   
+	//DL1dv01 has preliminary rel22 pre-rec SF uncertainties
         case Jet::BTaggerOP::DL1dv01_FixedCutBEff_60:
 	  jet.is_DL1dv01_FixedCutBEff_60=       btag->m_isTag->at(idx);
 	  jet.SF_DL1dv01_FixedCutBEff_60=(m_mc)?btag->m_sf   ->at(idx):dummy1;
@@ -1462,6 +1526,39 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
 	  jet.is_GN120220509_Continuous=       btag->m_isTag->at(idx);
 	  jet.SF_GN120220509_Continuous=(m_mc)?btag->m_sf   ->at(idx):dummy1;
 	  break;
+  case Jet::BTaggerOP::GN2v00LegacyWP_FixedCutBEff_60:
+	  jet.is_GN2v00LegacyWP_FixedCutBEff_60=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00LegacyWP_FixedCutBEff_60=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+	case Jet::BTaggerOP::GN2v00LegacyWP_FixedCutBEff_70:
+	  jet.is_GN2v00LegacyWP_FixedCutBEff_70=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00LegacyWP_FixedCutBEff_70=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+	case Jet::BTaggerOP::GN2v00LegacyWP_FixedCutBEff_77:
+	  jet.is_GN2v00LegacyWP_FixedCutBEff_77=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00LegacyWP_FixedCutBEff_77=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+	case Jet::BTaggerOP::GN2v00LegacyWP_FixedCutBEff_85:
+	  jet.is_GN2v00LegacyWP_FixedCutBEff_85=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00LegacyWP_FixedCutBEff_85=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+  case Jet::BTaggerOP::GN2v00NewAliasWP_FixedCutBEff_60:
+	  jet.is_GN2v00NewAliasWP_FixedCutBEff_60=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00NewAliasWP_FixedCutBEff_60=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+	case Jet::BTaggerOP::GN2v00NewAliasWP_FixedCutBEff_70:
+	  jet.is_GN2v00NewAliasWP_FixedCutBEff_70=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00NewAliasWP_FixedCutBEff_70=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+	case Jet::BTaggerOP::GN2v00NewAliasWP_FixedCutBEff_77:
+	  jet.is_GN2v00NewAliasWP_FixedCutBEff_77=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00NewAliasWP_FixedCutBEff_77=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+	case Jet::BTaggerOP::GN2v00NewAliasWP_FixedCutBEff_85:
+	  jet.is_GN2v00NewAliasWP_FixedCutBEff_85=       btag->m_isTag->at(idx);
+	  jet.SF_GN2v00NewAliasWP_FixedCutBEff_85=(m_mc)?btag->m_sf   ->at(idx):dummy1;
+	  break;
+
 	default:
 	  throw std::domain_error(
 				  __FILE__ + std::string(", in ") + __func__ + ": "
@@ -1634,6 +1731,10 @@ void JetContainer::setBranches(TTree *tree)
     //setBranch<float>(tree,"GhostTrackAssociationFraction", m_ghostTrackAssFrac);
   }
 
+  if (m_infoSwitch.m_fJvt) {
+    setBranch<float>(tree, "fJvt", m_fJvt);
+  }
+
   if (m_infoSwitch.m_NNJvt) {
     setBranch<float>(tree, "NNJvt", m_NNJvt);
     setBranch<bool>(tree, "NNJvtPass", m_NNJvtPass);
@@ -1655,6 +1756,18 @@ void JetContainer::setBranches(TTree *tree)
     setBranch<int>(tree,"JvtPass_Tight",        m_JvtPass_Tight );
     if ( m_mc ) {
       setBranch<std::vector<float> >(tree,"JvtEff_SF_Tight",     m_JvtEff_SF_Tight );
+    }
+  }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "FixedEffPt" ) {
+    setBranch<int>(tree,"JvtPass_FixedEffPt",       m_JvtPass_FixedEffPt );
+    if ( m_mc ) {
+      setBranch<std::vector<float> >(tree,"JvtEff_SF_FixedEffPt",    m_JvtEff_SF_FixedEffPt );
+    }
+  }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "TightFwd" ) {
+    setBranch<int>(tree,"JvtPass_TightFwd",        m_JvtPass_TightFwd );
+    if ( m_mc ) {
+      setBranch<std::vector<float> >(tree,"JvtEff_SF_TightFwd",     m_JvtEff_SF_TightFwd );
     }
   }
   if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sffJVTName == "Loose" ) {
@@ -1747,7 +1860,14 @@ void JetContainer::setBranches(TTree *tree)
     setBranch<float>(tree,"GN1_pu", m_GN1_pu);
     setBranch<float>(tree,"GN1_pc", m_GN1_pc);
     setBranch<float>(tree,"GN1_pb", m_GN1_pb);
-
+    setBranch<float>(tree,"GN2v00LegacyWP",    m_GN2v00LegacyWP);
+    setBranch<float>(tree,"GN2v00LegacyWP_pu", m_GN2v00LegacyWP_pu);
+    setBranch<float>(tree,"GN2v00LegacyWP_pc", m_GN2v00LegacyWP_pc);
+    setBranch<float>(tree,"GN2v00LegacyWP_pb", m_GN2v00LegacyWP_pb);
+    setBranch<float>(tree,"GN2v00NewAliasWP",    m_GN2v00NewAliasWP);
+    setBranch<float>(tree,"GN2v00NewAliasWP_pu", m_GN2v00NewAliasWP_pu);
+    setBranch<float>(tree,"GN2v00NewAliasWP_pc", m_GN2v00NewAliasWP_pc);
+    setBranch<float>(tree,"GN2v00NewAliasWP_pb", m_GN2v00NewAliasWP_pb);
     setBranch<int  >(tree,"HadronConeExclTruthLabelID", m_HadronConeExclTruthLabelID);
     setBranch<int  >(tree,"HadronConeExclExtendedTruthLabelID", m_HadronConeExclExtendedTruthLabelID);
 
@@ -2066,6 +2186,10 @@ void JetContainer::clear()
     m_Jvt               ->clear();
   }
 
+   if (m_infoSwitch.m_fJvt){
+    m_fJvt->clear();
+  }
+
   if (m_infoSwitch.m_NNJvt){
     m_NNJvt->clear();
     m_NNJvtPass->clear();
@@ -2087,6 +2211,18 @@ void JetContainer::clear()
     m_JvtPass_Tight     ->clear();
     if ( m_mc ) {
       m_JvtEff_SF_Tight ->clear();
+    }
+  }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "FixedEffPt" ) {
+    m_JvtPass_FixedEffPt    ->clear();
+    if ( m_mc ) {
+      m_JvtEff_SF_FixedEffPt->clear();
+    }
+  }
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "TightFwd" ) {
+    m_JvtPass_TightFwd     ->clear();
+    if ( m_mc ) {
+      m_JvtEff_SF_TightFwd ->clear();
     }
   }
   if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sffJVTName == "Loose" ) {
@@ -2172,6 +2308,14 @@ void JetContainer::clear()
     m_GN1_pu                            ->clear();
     m_GN1_pc                            ->clear();
     m_GN1_pb                            ->clear();
+    m_GN2v00LegacyWP                    ->clear();
+    m_GN2v00LegacyWP_pu                 ->clear();
+    m_GN2v00LegacyWP_pc                 ->clear();
+    m_GN2v00LegacyWP_pb                 ->clear();
+    m_GN2v00NewAliasWP                  ->clear();
+    m_GN2v00NewAliasWP_pu               ->clear();
+    m_GN2v00NewAliasWP_pc               ->clear();
+    m_GN2v00NewAliasWP_pb               ->clear();
     m_HadronConeExclTruthLabelID        ->clear();
     m_HadronConeExclExtendedTruthLabelID->clear();
 
@@ -2396,6 +2540,7 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
 
     if(m_infoSwitch.m_clean){
 
+
       static SG::AuxElement::ConstAccessor<float> jetTime ("Timing");
       safeFill<float, float, xAOD::Jet>(jet, jetTime, m_Timing, -999);
 
@@ -2459,9 +2604,6 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
       static SG::AuxElement::ConstAccessor<int> clean_passLooseBad ("clean_passLooseBad");
       safeFill<int, int, xAOD::Jet>(jet, clean_passLooseBad, m_clean_passLooseBad, -999);
 
-      static SG::AuxElement::ConstAccessor<int> clean_passLooseBadLLP ("clean_passLooseBadLLP");
-      safeFill<int, int, xAOD::Jet>(jet, clean_passLooseBadLLP, m_clean_passLooseBadLLP, -999);
-
       static SG::AuxElement::ConstAccessor<int> clean_passTightBad ("clean_passTightBad");
       safeFill<int, int, xAOD::Jet>(jet, clean_passTightBad, m_clean_passTightBad, -999);
     }
@@ -2469,7 +2611,7 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
       static SG::AuxElement::ConstAccessor<int> clean_passLooseBadTrigger ("clean_passLooseBadTrigger");
       safeFill<int, int, xAOD::Jet>(jet, clean_passLooseBadTrigger, m_clean_passLooseBadTrigger, -999);
     }
-    if(!m_infoSwitch.m_cleanLLP) {
+    if(m_infoSwitch.m_cleanLLP) {
       static SG::AuxElement::ConstAccessor<int> clean_passLooseBadLLP ("clean_passLooseBadLLP");
       safeFill<int, int, xAOD::Jet>(jet, clean_passLooseBadLLP, m_clean_passLooseBadLLP, -999);
     }
@@ -2760,6 +2902,11 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
 
     } // trackPV || chargedPFOPV || JVT
 
+    if (m_infoSwitch.m_fJvt) {
+      static SG::AuxElement::ConstAccessor< float > fJvt ("DFCommonJets_fJvt");
+      safeFill<float, float, xAOD::Jet>(jet, fJvt, m_fJvt, -999);
+    }
+
     if (m_infoSwitch.m_NNJvt) {
       static SG::AuxElement::ConstAccessor< float > NNJvt ("NNJvt");
       static SG::AuxElement::ConstAccessor< char > NNJvtPass ("NNJvtPass");
@@ -2790,12 +2937,16 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
   static SG::AuxElement::ConstAccessor< char > jvtPass_Loose("JetJVT_Passed_Loose");
   static SG::AuxElement::ConstAccessor< char > jvtPass_Medium("JetJVT_Passed_Medium");
   static SG::AuxElement::ConstAccessor< char > jvtPass_Tight("JetJVT_Passed_Tight");
+  static SG::AuxElement::ConstAccessor< char > jvtPass_FixedEffPt("JetJVT_Passed_FixedEffPt");
+  static SG::AuxElement::ConstAccessor< char > jvtPass_TightFwd("JetJVT_Passed_TightFwd");
   static SG::AuxElement::ConstAccessor< char > fjvtPass_Loose("JetfJVT_Passed_Loose");
   static SG::AuxElement::ConstAccessor< char > fjvtPass_Medium("JetfJVT_Passed_Medium");
   static SG::AuxElement::ConstAccessor< char > fjvtPass_Tight("JetfJVT_Passed_Tight");
   static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_Loose("JetJvtEfficiency_JVTSyst_JVT_Loose");
   static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_Medium("JetJvtEfficiency_JVTSyst_JVT_Medium");
   static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_Tight("JetJvtEfficiency_JVTSyst_JVT_Tight");
+  static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_FixedEffPt("JetJvtEfficiency_JVTSyst_JVT_FixedEffPt");
+  static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_TightFwd("JetJvtEfficiency_JVTSyst_JVT_TightFwd");
   static SG::AuxElement::ConstAccessor< std::vector< float > > fjvtSF_Loose("JetJvtEfficiency_fJVTSyst_fJVT_Loose");
   static SG::AuxElement::ConstAccessor< std::vector< float > > fjvtSF_Medium("JetJvtEfficiency_fJVTSyst_fJVT_Medium");
   static SG::AuxElement::ConstAccessor< std::vector< float > > fjvtSF_Tight("JetJvtEfficiency_fJVTSyst_fJVT_Tight");
@@ -2831,6 +2982,28 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
         m_JvtEff_SF_Tight->push_back( jvtSF_Tight( *jet ) );
       } else {
         m_JvtEff_SF_Tight->push_back( junkSF );
+      }
+    }
+  }
+
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "FixedEffPt" ) {
+    safeFill<char, int, xAOD::Jet>(jet, jvtPass_FixedEffPt, m_JvtPass_FixedEffPt, -1);
+    if ( m_mc ) {
+      if ( jvtSF_FixedEffPt.isAvailable( *jet ) ) {
+        m_JvtEff_SF_FixedEffPt->push_back( jvtSF_FixedEffPt( *jet ) );
+      } else {
+        m_JvtEff_SF_FixedEffPt->push_back( junkSF );
+      }
+    }
+  }
+
+  if ( m_infoSwitch.m_trackPV || m_infoSwitch.m_sfJVTName == "TightFwd" ) {
+    safeFill<char, int, xAOD::Jet>(jet, jvtPass_TightFwd, m_JvtPass_TightFwd, -1);
+    if ( m_mc ) {
+      if ( jvtSF_TightFwd.isAvailable( *jet ) ) {
+        m_JvtEff_SF_TightFwd->push_back( jvtSF_TightFwd( *jet ) );
+      } else {
+        m_JvtEff_SF_TightFwd->push_back( junkSF );
       }
     }
   }
@@ -3015,7 +3188,7 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
       static SG::AuxElement::ConstAccessor<double> JetVertexCharge_discriminant("JetVertexCharge_discriminant");
       safeFill<double, double, xAOD::BTagging>(myBTag, JetVertexCharge_discriminant, m_JetVertexCharge_discriminant, -999);
     }
-    
+
     float pu, pb, pc, score;
 
     pu=0; pb=0; pc=0;
@@ -3028,7 +3201,7 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
     m_DL1r_pc->push_back(pc);
     m_DL1r_pb->push_back(pb);
     m_DL1r->push_back( score );
-    
+
     pu=0; pb=0; pc=0;
     myBTag->variable<float>("DL1dv00" , "pu", pu);
     myBTag->variable<float>("DL1dv00" , "pc", pc);
@@ -3049,7 +3222,7 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
     m_DL1dv01_pc->push_back(pc);
     m_DL1dv01_pb->push_back(pb);
     m_DL1dv01->push_back( score );
-    
+
     pu=0; pb=0; pc=0;
     myBTag->variable<float>("GN120220509" , "pu", pu);
     myBTag->variable<float>("GN120220509" , "pc", pc);
@@ -3060,7 +3233,28 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
     m_GN1_pc->push_back(pc);
     m_GN1_pb->push_back(pb);
     m_GN1->push_back( score );
+
+    pu=0; pb=0; pc=0;
+    myBTag->variable<float>("GN2v00LegacyWP" , "pu", pu);
+    myBTag->variable<float>("GN2v00LegacyWP" , "pc", pc);
+    myBTag->variable<float>("GN2v00LegacyWP" , "pb", pb);
+    //FixMe: Retrieve the correct f_c value from the CDI file would be the best approach
+    score=log( pb / (0.10*pc+0.90*pu) ); // GN2 uses a different f_c value than DL1d which is 0.01
+    m_GN2v00LegacyWP_pu->push_back(pu);
+    m_GN2v00LegacyWP_pc->push_back(pc);
+    m_GN2v00LegacyWP_pb->push_back(pb);
+    m_GN2v00LegacyWP->push_back( score );
     
+    pu=0; pb=0; pc=0;
+    myBTag->variable<float>("GN2v00NewAliasWP" , "pu", pu);
+    myBTag->variable<float>("GN2v00NewAliasWP" , "pc", pc);
+    myBTag->variable<float>("GN2v00NewAliasWP" , "pb", pb);
+    //FixMe: Retrieve the correct f_c value from the CDI file would be the best approach
+    score=log( pb / (0.10*pc+0.90*pu) ); // GN2 uses a different f_c value than DL1d which is 0.01
+    m_GN2v00NewAliasWP_pu->push_back(pu);
+    m_GN2v00NewAliasWP_pc->push_back(pc);
+    m_GN2v00NewAliasWP_pb->push_back(pb);
+    m_GN2v00NewAliasWP->push_back( score );
 
     // flavor groups truth definition
     static SG::AuxElement::ConstAccessor<int> hadConeExclTruthLabel("HadronConeExclTruthLabelID");

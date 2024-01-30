@@ -135,7 +135,7 @@ EL::StatusCode ElectronSelector :: initialize ()
 
     // retrieve the file in which the cutflow hists are stored
     //
-    TFile *file     = wk()->getOutputFile ("cutflow");
+    TFile *file     = wk()->getOutputFile (m_cutFlowStreamName);
 
     // retrieve the event cutflows
     //
@@ -191,11 +191,15 @@ EL::StatusCode ElectronSelector :: initialize ()
   if( m_LHOperatingPoint == "LooseAndBLayer" )
     m_LHOperatingPoint = "LooseBL";
 
-  if ( m_LHOperatingPoint != "VeryLoose"       &&
-       m_LHOperatingPoint != "Loose"           &&
-       m_LHOperatingPoint != "LooseBL"         &&
-       m_LHOperatingPoint != "Medium"          &&
-       m_LHOperatingPoint != "Tight"     ) {
+  if ( m_LHOperatingPoint != "VeryLoose"     &&
+       m_LHOperatingPoint != "Loose"         &&
+       m_LHOperatingPoint != "LooseBL"       &&
+       m_LHOperatingPoint != "Medium"        &&
+       m_LHOperatingPoint != "Tight"         &&
+       m_LHOperatingPoint != "VeryLooseLLP"  && m_LHOperatingPoint != "VeryLooseNoPix"  &&
+       m_LHOperatingPoint != "LooseLLP"      && m_LHOperatingPoint != "LooseNoPix"      &&
+       m_LHOperatingPoint != "MediumLLP"     && m_LHOperatingPoint != "MediumNoPix"     &&
+       m_LHOperatingPoint != "TightLLP"      && m_LHOperatingPoint != "TightNoPix"   ) {
     ANA_MSG_ERROR( "Unknown electron likelihood PID requested " << m_LHOperatingPoint);
     return EL::StatusCode::FAILURE;
   }
@@ -268,7 +272,7 @@ EL::StatusCode ElectronSelector :: initialize ()
 
   if( m_doLHPID ){
     // if not using LH PID, make sure all the decorations will be set ... by choosing the loosest WP!
-    std::string likelihoodWP = ( m_doLHPIDcut ) ? m_LHOperatingPoint : "Loose";
+    std::string likelihoodWP = ( m_doLHPIDcut ) ? m_LHOperatingPoint : "VeryLoose";
     m_el_LH_PIDManager = new ElectronLHPIDManager( likelihoodWP, msgLvl(MSG::DEBUG) );
 
 
@@ -280,12 +284,6 @@ EL::StatusCode ElectronSelector :: initialize ()
     }
 
     if ( m_readIDFlagsFromDerivation ) {
-      // LooseBL is not in Derivations, so choose Loose and do BLayer cut locally
-      if( m_LHOperatingPoint == "LooseBL" ){
-        m_LHOperatingPoint = "Loose";
-        m_doBLTrackQualityCut = true;
-      }
-
       ANA_MSG_INFO( "Reading Electron LH ID from DAODs ..." );
       ANA_CHECK( m_el_LH_PIDManager->setupWPs( false ));
     } else {
@@ -304,6 +302,7 @@ EL::StatusCode ElectronSelector :: initialize ()
   ANA_MSG_DEBUG( "Adding isolation WP " << m_IsoKeys.at(0) << " to IsolationSelectionTool" );
   ANA_CHECK( m_isolationSelectionTool_handle.setProperty("ElectronWP", (m_IsoKeys.at(0)).c_str()));
   ANA_CHECK( m_isolationSelectionTool_handle.setProperty("OutputLevel", msg().level()));
+  if (m_isoDecSuffix!="") ANA_CHECK ( m_isolationSelectionTool_handle.setProperty("IsoDecSuffix", m_isoDecSuffix) );
   ANA_CHECK( m_isolationSelectionTool_handle.retrieve());
   ANA_MSG_DEBUG("Retrieved tool: " << m_isolationSelectionTool_handle);
   m_isolationSelectionTool = dynamic_cast<CP::IsolationSelectionTool*>(m_isolationSelectionTool_handle.get() ); // see header file for why
@@ -346,34 +345,47 @@ EL::StatusCode ElectronSelector :: initialize ()
   //     do not initialise if there are no input trigger chains
   if(  !( m_singleElTrigChains.empty() && m_diElTrigChains.empty() ) ) {
 
-    if( !isPHYS() ) {
-      // Grab the TrigDecTool from the ToolStore
-      if(!m_trigDecTool_handle.isUserConfigured()){
-        ANA_MSG_FATAL("A configured " << m_trigDecTool_handle.typeAndName() << " must have been previously created! Are you creating one in xAH::BasicEventSelection?" );
-        return EL::StatusCode::FAILURE;
-      }
-      ANA_CHECK( m_trigDecTool_handle.retrieve());
-      ANA_MSG_DEBUG("Retrieved tool: " << m_trigDecTool_handle);
+    // grab the TrigDecTool from the ToolStore
+    if(!m_trigDecTool_handle.isUserConfigured()){
+      ANA_MSG_FATAL("A configured " << m_trigDecTool_handle.typeAndName() << " must have been previously created! Are you creating one in xAH::BasicEventSelection?" );
+      return EL::StatusCode::FAILURE;
+    }
+    ANA_CHECK( m_trigDecTool_handle.retrieve());
+    ANA_MSG_DEBUG("Retrieved tool: " << m_trigDecTool_handle);
 
-      ANA_CHECK( m_scoreTool.retrieve());
+    // in AB we need to explicitly retrieve this tool, see https://twiki.cern.ch/twiki/bin/viewauth/Atlas/R22TriggerAnalysis
+    ANA_CHECK( m_scoreTool.retrieve());
 
-      //  everything went fine, let's initialise the tool!
-      m_trigElectronMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchingTool/MatchingTool");;
+    // Run3 got a new trigger navigation
+    if (m_useRun3navigation) {
+      m_trigElectronMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::R3MatchingTool/TrigR3MatchingTool");
       ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "TrigDecisionTool", m_trigDecTool_handle ));
       ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "ScoringTool", m_scoreTool ));
-      ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "OutputLevel", msg().level() ));
-      ANA_CHECK( m_trigElectronMatchTool_handle.retrieve());
-      ANA_MSG_DEBUG("Retrieved tool: " << m_trigElectronMatchTool_handle);
-    } else { // For DAOD_PHYS samples
-      m_trigElectronMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchFromCompositeTool/MatchFromCompositeTool");;
-      ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "OutputLevel", msg().level() ));
-      if (!m_trigInputPrefix.empty()){
-        ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "InputPrefix", m_trigInputPrefix ));
-      }
+      ANA_CHECK( m_trigElectronMatchTool_handle.setProperty("OutputLevel", msg().level() ));
       ANA_CHECK( m_trigElectronMatchTool_handle.retrieve());
       ANA_MSG_DEBUG("Retrieved tool: " << m_trigElectronMatchTool_handle);
     }
-
+    // otherwise we have to configure the Run2-style navigation
+    else {
+      if( !isPHYS() ) {
+        m_trigElectronMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchingTool/MatchingTool");;
+        ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "TrigDecisionTool", m_trigDecTool_handle ));
+        ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "ScoringTool", m_scoreTool ));
+        ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "OutputLevel", msg().level() ));
+        ANA_CHECK( m_trigElectronMatchTool_handle.retrieve());
+        ANA_MSG_DEBUG("Retrieved tool: " << m_trigElectronMatchTool_handle);
+      }
+      else { // For DAOD_PHYS samples
+        m_trigElectronMatchTool_handle = asg::AnaToolHandle<Trig::IMatchingTool>("Trig::MatchFromCompositeTool/MatchFromCompositeTool");;
+        ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "OutputLevel", msg().level() ));
+        if (!m_trigInputPrefix.empty()){
+          ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "InputPrefix", m_trigInputPrefix ));
+          ANA_CHECK( m_trigElectronMatchTool_handle.setProperty( "RemapBrokenLinks", true) );
+        }
+        ANA_CHECK( m_trigElectronMatchTool_handle.retrieve());
+        ANA_MSG_DEBUG("Retrieved tool: " << m_trigElectronMatchTool_handle);
+      }
+    }
   } else {
 
     m_doTrigMatch = false;
@@ -1013,44 +1025,46 @@ int ElectronSelector :: passCuts( const xAOD::Electron* electron, const xAOD::Ve
         bool passSelID(false);
         SG::AuxElement::ConstAccessor< char > LHDecision( "DFCommonElectronsLH" + m_LHOperatingPoint );
         if( LHDecision.isAvailable( *electron ) ){
-	  if (m_doModifiedEleId){
-	    if(m_LHOperatingPoint == "Tight"){
-	      passSelID = acc_EG_Medium( *electron ) && acc_EG_Tight( *electron );
-	    } else if(m_LHOperatingPoint == "Medium"){
-	      passSelID = ( acc_EG_Loose( *electron ) && acc_EG_Medium( *electron ) ) || acc_EG_Tight( *electron );
-	    } else if (m_LHOperatingPoint == "Loose") {
-	      passSelID = acc_EG_Medium( *electron ) || acc_EG_Loose( *electron );
-	    } else { passSelID = LHDecision( *electron ); }
-	  }
-	  else
+          if (m_doModifiedEleId){
+            if(m_LHOperatingPoint == "Tight"){
+              passSelID = acc_EG_Medium( *electron ) && acc_EG_Tight( *electron );
+            } else if(m_LHOperatingPoint == "Medium"){
+              passSelID = ( acc_EG_Loose( *electron ) && acc_EG_Medium( *electron ) ) || acc_EG_Tight( *electron );
+            } else if (m_LHOperatingPoint == "Loose") {
+              passSelID = acc_EG_Medium( *electron ) || acc_EG_Loose( *electron );
+            } else { passSelID = LHDecision( *electron ); }
+          }
+          else {
             passSelID = LHDecision( *electron );
-	}
-	if ( !passSelID ) {
-	  ANA_MSG_DEBUG( "Electron failed likelihood PID cut w/ operating point " << m_LHOperatingPoint );
+          }
+        }
+	      if ( !passSelID ) {
+	        ANA_MSG_DEBUG( "Electron failed likelihood PID cut w/ operating point " << m_LHOperatingPoint );
           return 0;
         }
       }
 
       const std::set<std::string> myLHWPs = m_el_LH_PIDManager->getValidWPs();
       for ( auto it : (myLHWPs) ) {
-
         const std::string decorWP =  "LH"+it;
-
         bool passThisID(false);
         SG::AuxElement::ConstAccessor< char > LHDecisionAll( "DFCommonElectrons" + decorWP );
+
         if( LHDecisionAll.isAvailable( *electron ) ){
-	  if (m_doModifiedEleId){
-	    if(decorWP == "LHTight"){
-	      passThisID = acc_EG_Medium( *electron ) && acc_EG_Tight( *electron );
-	    } else if(decorWP == "LHMedium"){
-	      passThisID = ( acc_EG_Loose( *electron ) && acc_EG_Medium( *electron ) ) || acc_EG_Tight( *electron );
-	    } else if (decorWP == "LHLoose") {
-	      passThisID = acc_EG_Medium( *electron ) || acc_EG_Loose( *electron );
-	    } else { passThisID = LHDecisionAll( *electron ); }
-	  }
-	  else
+
+          if (m_doModifiedEleId){
+            if(decorWP == "LHTight"){
+              passThisID = acc_EG_Medium( *electron ) && acc_EG_Tight( *electron );
+            } else if(decorWP == "LHMedium"){
+              passThisID = ( acc_EG_Loose( *electron ) && acc_EG_Medium( *electron ) ) || acc_EG_Tight( *electron );
+            } else if (decorWP == "LHLoose") {
+              passThisID = acc_EG_Medium( *electron ) || acc_EG_Loose( *electron );
+            } else { passThisID = LHDecisionAll( *electron ); }
+          }
+          else {
             passThisID = LHDecisionAll( *electron );
-	}
+          }
+	      }
 
         ANA_MSG_DEBUG( "Decorating electron with decision for LH WP : " << decorWP );
         ANA_MSG_DEBUG( "\t does electron pass " << decorWP << "? " << passThisID );
@@ -1058,7 +1072,8 @@ int ElectronSelector :: passCuts( const xAOD::Electron* electron, const xAOD::Ve
 
       }
 
-    } else {
+    } 
+    else {
 
       // retrieve only tools with WP >= selected WP, cut electrons if not satisfying selected WP, and decorate w/ tool decision all the others
       //

@@ -36,7 +36,8 @@ public:
   std::string m_outputSystName = "BJetEfficiency_Algo";
   bool        m_writeSystToMetadata = false;
 
-  std::string m_corrFileName = "xAODBTaggingEfficiency/13TeV/2021-22-13TeV-MC16-CDI-2021-12-02_v2.root";
+  std::string m_corrFileName = "xAODBTaggingEfficiency/13p6TeV/2023-22-13p6TeV-MC21-CDI_Test_2023-08-1_v1.root";
+
   std::string m_jetAuthor = "AntiKt4EMPFlowJets";
   /// @brief Minimum pT in MeV for taggable jets
   float       m_minPt = 20e3;
@@ -76,6 +77,11 @@ public:
   /// @brief Calibration to use for MC (EfficiencyB/C/T/LightCalibrations), "auto" to determine from sample name (multiple samples can be provided as long as they are separated by ';')
   /// @brief Example: "410470;410250;410558;410464" (Pythia8,Sherpa22,Herwig7,MG)
   std::string m_EfficiencyCalibration = "";
+
+  /// @brief To change NP scheme for b-tagging systematics - Loose is the default value in athena
+  std::string m_EigenvectorReductionB = "Loose";
+  std::string m_EigenvectorReductionC = "Loose";
+  std::string m_EigenvectorReductionLight = "Loose";
 
 private:
 
