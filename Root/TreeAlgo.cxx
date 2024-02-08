@@ -102,16 +102,29 @@ EL::StatusCode TreeAlgo :: initialize ()
     return EL::StatusCode::FAILURE;
   }
 
-  std::istringstream ss_l1_containers(m_l1JetContainerName);
-  while ( std::getline(ss_l1_containers, token, ' ') ){
+  std::istringstream ss_l1_jet_containers(m_l1JetContainerName);
+  while ( std::getline(ss_l1_jet_containers, token, ' ') ){
     m_l1JetContainers.push_back(token);
   }
-  std::istringstream ss_l1_names(m_l1JetBranchName);
-  while ( std::getline(ss_l1_names, token, ' ') ){
+  std::istringstream ss_l1_jet_names(m_l1JetBranchName);
+  while ( std::getline(ss_l1_jet_names, token, ' ') ){
     m_l1JetBranches.push_back(token);
   }
   if( !m_l1JetContainerName.empty() && m_l1JetContainers.size()!=m_l1JetBranches.size()){
     ANA_MSG_ERROR( "The number of L1 jet containers must be equal to the number of L1 jet name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+
+  std::istringstream ss_l1_tau_containers(m_l1TauContainerName);
+  while ( std::getline(ss_l1_tau_containers, token, ' ') ){
+    m_l1TauContainers.push_back(token);
+  }
+  std::istringstream ss_l1_tau_names(m_l1TauBranchName);
+  while ( std::getline(ss_l1_tau_names, token, ' ') ){
+    m_l1TauBranches.push_back(token);
+  }
+  if( !m_l1TauContainerName.empty() && m_l1TauContainers.size()!=m_l1TauBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 tau containers must be equal to the number of L1 tau name branches. Exiting");
     return EL::StatusCode::FAILURE;
   }
 
@@ -338,6 +351,11 @@ EL::StatusCode TreeAlgo :: execute ()
         helpTree->AddL1Jets(m_l1JetBranches.at(ll).c_str());
       }
     }
+    if (!m_l1TauContainerName.empty() )         {
+      for(unsigned int ll=0; ll<m_l1TauContainers.size();++ll){
+        helpTree->AddL1Taus(m_l1TauBranches.at(ll).c_str());
+      }
+    }
     if (!m_trigJetContainerName.empty() )      {
       for(unsigned int ll=0; ll<m_trigJetContainers.size();++ll){
         if(m_trigJetDetails.size()==1) helpTree->AddJets       (m_trigJetDetailStr, m_trigJetBranches.at(ll).c_str());
@@ -516,6 +534,44 @@ EL::StatusCode TreeAlgo :: execute ()
 
       if ( reject ) {
         ANA_MSG_DEBUG( "There was a L1 jet container problem - not writing the event");
+        continue;
+      }
+    }
+
+    if ( !m_l1TauContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1TauContainers.size(); ++ll ) {
+        if(m_l1TauContainers.at(ll).find("jFex")!= std::string::npos){ // jFEX
+          const xAOD::jFexTauRoIContainer* inL1Taus(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::jFexTauRoIContainer>(m_l1TauContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 tau container " + m_l1TauContainers.at(ll) + " is not available. Skipping all remaining L1 tau collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Taus, m_l1TauContainers.at(ll), m_event, m_store, msg()) );
+          helpTree->FillFexL1Taus( inL1Taus, m_l1TauBranches.at(ll), m_sortL1Taus );
+        }else if(m_l1TauContainers.at(ll).find("Em")!= std::string::npos){ // Em
+          const xAOD::EmTauRoIContainer* inL1Taus(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::EmTauRoIContainer>(m_l1TauContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 tau container " + m_l1TauContainers.at(ll) + " is not available. Skipping all remaining L1 tau collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Taus, m_l1TauContainers.at(ll), m_event, m_store, msg()) );
+          helpTree->FillEmL1Taus( inL1Taus, m_l1TauBranches.at(ll), m_sortL1Taus ); 
+        }else if(m_l1TauContainers.at(ll).find("Tau")!= std::string::npos){ // eFEX
+          const xAOD::eFexTauRoIContainer* inL1Taus(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::eFexTauRoIContainer>(m_l1TauContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 tau container " + m_l1TauContainers.at(ll) + " is not available. Skipping all remaining L1 tau collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Taus, m_l1TauContainers.at(ll), m_event, m_store, msg()) );
+          helpTree->FillFexL1Taus( inL1Taus, m_l1TauBranches.at(ll), m_sortL1Taus );            
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 tau container " + m_l1TauContainers.at(ll) + " is not known." );
+        }
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 tau container problem - not writing the event");
         continue;
       }
     }

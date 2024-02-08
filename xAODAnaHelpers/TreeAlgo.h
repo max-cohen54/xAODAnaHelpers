@@ -63,8 +63,11 @@ public:
   std::string m_trackParticlesContainerName = "";
   std::string m_l1JetContainerName = "";
   std::string m_l1JetBranchName    = "L1Jet";
+  std::string m_l1TauContainerName = "";
+  std::string m_l1TauBranchName    = "L1Tau";
   std::string m_vertexBranchName   = "vertex";
   bool m_sortL1Jets = false;
+  bool m_sortL1Taus = false;
   bool m_retrievePV = true;
 
   // if these are set, assume systematics are being processed over
@@ -92,6 +95,7 @@ protected:
   std::vector<std::string> m_trigJetContainers; //!
   std::vector<std::string> m_fatJetContainers; //!
   std::vector<std::string> m_l1JetContainers; //!
+  std::vector<std::string> m_l1TauContainers; //!
   std::vector<std::string> m_vertexContainers; //!
   std::vector<std::string> m_truthParticlesContainers; //!
 
@@ -100,6 +104,7 @@ protected:
   std::vector<std::string> m_trigJetBranches; //!
   std::vector<std::string> m_fatJetBranches; //!
   std::vector<std::string> m_l1JetBranches; //!
+  std::vector<std::string> m_l1TauBranches; //!
   std::vector<std::string> m_vertexBranches; //!
   std::vector<std::string> m_truthParticlesBranches; //!
 
