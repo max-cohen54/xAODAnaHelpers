@@ -659,6 +659,43 @@ void HelpTreeBase::ClearL1Jets(const std::string& jetName) {
 
 }
 
+/*********************
+ *
+ *   L1 TAUS
+ *
+ ********************/
+
+void HelpTreeBase::AddL1Taus( const std::string& tauName)
+{
+
+  if(m_debug) Info("AddL1Taus()", "Adding %s L1 taus", tauName.c_str());
+
+  m_l1Taus[tauName] = new xAH::L1TauContainer(tauName, m_units, m_isMC);
+  m_l1Taus[tauName]->m_debug = m_debug;
+
+  xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  thisL1Tau->setBranches(m_tree);
+
+}
+
+/*
+void HelpTreeBase::FillLegacyL1Taus( const xAOD::TauRoIContainer* taus, const std::string& tauName, bool sortL1Taus ) {
+
+  this->ClearL1Taus(tauName);
+
+  xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  
+  thisL1Tau->FillLegacyL1Taus(taus,sortL1Taus);
+
+}*/
+
+void HelpTreeBase::ClearL1Taus(const std::string& tauName) {
+
+  xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  thisL1Tau->clear();
+
+}
+
 
 /*********************
  *

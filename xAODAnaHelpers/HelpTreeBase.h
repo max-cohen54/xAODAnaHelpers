@@ -24,6 +24,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigger/JetRoIContainer.h"
+//#include "xAODTrigger/TauRoIContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
@@ -36,6 +37,7 @@
 #include "xAODAnaHelpers/TrigMetContainer.h"
 #include "xAODAnaHelpers/JetContainer.h"
 #include "xAODAnaHelpers/L1JetContainer.h"
+#include "xAODAnaHelpers/L1TauContainer.h"
 #include "xAODAnaHelpers/VertexContainer.h"
 #include "xAODAnaHelpers/ElectronContainer.h"
 #include "xAODAnaHelpers/PhotonContainer.h"
@@ -82,6 +84,7 @@ public:
   void AddClusters      (const std::string& detailStr = "", const std::string& clusterName = "cl");
   void AddJets          (const std::string& detailStr = "", const std::string& jetName = "jet");
   void AddL1Jets        (const std::string& jetName   = "");
+  void AddL1Taus        (const std::string& tauName   = "");
   void AddTruthParts    (const std::string& detailStr = "", const std::string& truthName = "xAH_truth");
   void AddTrackParts    (const std::string& detailStr = "", const std::string& trackName = "trk");
   void AddVertices      (const std::string& detailStr = "", const std::string& vertexName = "vertex"); // options for detailStr: "all" or "primary"
@@ -147,6 +150,7 @@ public:
   void FillJets( const xAOD::JetContainer* jets, int pvLocation = -1, const std::string& jetName = "jet" );
   void FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string& jetName = "jet" );
   void FillLegacyL1Jets( const xAOD::JetRoIContainer* jets, const std::string& jetName = "L1Jet", bool sortL1Jets = false );
+  //void FillLegacyL1Taus( const xAOD::TauRoIContainer* taus, const std::string& tauName = "L1Tau", bool sortL1Taus = false );
 
   template <typename T>
   void FillPhase1L1Jets(T*& jets, const std::string& jetName = "L1Jet", bool sortL1Jets = false){
@@ -156,6 +160,26 @@ public:
     xAH::L1JetContainer* thisL1Jet = m_l1Jets[jetName];
   
     thisL1Jet->FillPhase1L1Jets(jets,sortL1Jets);
+  }
+
+  template <typename T>
+  void FillFexL1Taus(T*& taus, const std::string& tauName = "L1Tau", bool sortL1Taus = false){
+    
+    this->ClearL1Taus(tauName);
+
+    xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  
+    thisL1Tau->FillFexL1Taus(taus,sortL1Taus);
+  }
+
+  template <typename T>
+  void FillEmL1Taus(T*& taus, const std::string& tauName = "L1Tau", bool sortL1Taus = false){
+    
+    this->ClearL1Taus(tauName);
+
+    xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  
+    thisL1Tau->FillEmL1Taus(taus,sortL1Taus);
   }
 
   void FillTruth( const xAOD::TruthParticleContainer* truth, const std::string& truthName = "xAH_truth" );
@@ -197,6 +221,7 @@ public:
   void ClearClusters      (const std::string& clusterName = "cl");
   void ClearJets          (const std::string& jetName = "jet");
   void ClearL1Jets        (const std::string& jetName = "L1Jet");
+  void ClearL1Taus        (const std::string& tauName = "L1Tau");
   void ClearTruth         (const std::string& truthName);
   void ClearTracks	  (const std::string& trackName);
   void ClearFatJets       (const std::string& fatjetName, const std::string& suffix="");
@@ -381,6 +406,11 @@ protected:
   // L1 Jets
   //
   std::map<std::string, xAH::L1JetContainer*> m_l1Jets;
+
+  //
+  // L1 Taus
+  //
+  std::map<std::string, xAH::L1TauContainer*> m_l1Taus;
 
   //
   // Truth
