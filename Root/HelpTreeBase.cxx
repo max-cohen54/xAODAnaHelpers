@@ -698,6 +698,60 @@ void HelpTreeBase::ClearL1Taus(const std::string& tauName) {
 
 
 /*********************
+ **
+ *
+ **   L1 Muons
+ **
+ *********************/
+
+void HelpTreeBase::AddL1Muons( const std::string& muonName)
+{
+
+  if(m_debug) Info("AddL1Muons()", "Adding %s L1 muon", muonName.c_str());
+  m_l1Muons[muonName] = new xAH::L1MuonContainer(muonName, m_units, m_isMC);
+  m_l1Muons[muonName]->m_debug = m_debug;
+
+  xAH::L1MuonContainer* thisL1Muon = m_l1Muons[muonName];
+  thisL1Muon->setBranches(m_tree);
+
+}
+
+void HelpTreeBase::ClearL1Muons(const std::string& muonName){
+
+  xAH::L1MuonContainer* thisL1Muon = m_l1Muons[muonName];
+  thisL1Muon->clear();
+
+}
+
+
+/*********************
+ **
+ *
+ **   L1 Egammas
+ **
+ *********************/
+
+void HelpTreeBase::AddL1Egammas( const std::string& egammaName)
+{
+
+  if(m_debug) Info("AddL1Egammas()", "Adding %s L1 egamma", egammaName.c_str());
+  m_l1Egammas[egammaName] = new xAH::L1EMContainer(egammaName, m_units, m_isMC);
+  m_l1Egammas[egammaName]->m_debug = m_debug;
+
+  xAH::L1EMContainer* thisL1Egamma = m_l1Egammas[egammaName];
+  thisL1Egamma->setBranches(m_tree);
+
+}
+
+void HelpTreeBase::ClearL1Egammas(const std::string& egammaName){
+
+  xAH::L1EMContainer* thisL1Egamma = m_l1Egammas[egammaName];
+  thisL1Egamma->clear();
+
+}
+
+
+/*********************
  *
  *   JETS
  *

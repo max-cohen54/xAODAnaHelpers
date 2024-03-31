@@ -161,6 +161,30 @@ EL::StatusCode TreeAlgo :: initialize ()
     return EL::StatusCode::FAILURE;
   }
 
+  std::istringstream ss_l1_muon_containers(m_l1MuonContainerName);
+  while ( std::getline(ss_l1_muon_containers, token, ' ') ){
+    m_l1MuonContainers.push_back(token);
+  }
+  std::istringstream ss_l1_muon_names(m_l1MuonBranchName);
+  while ( std::getline(ss_l1_muon_names, token, ' ') ){
+    m_l1MuonBranches.push_back(token);
+  }
+  if( !m_l1MuonContainerName.empty() && m_l1MuonContainers.size()!=m_l1MuonBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 muon containers must be equal to the number of L1 muon name branches. Exiting");
+  }
+
+  std::istringstream ss_l1_egamma_containers(m_l1EMContainerName);
+  while ( std::getline(ss_l1_egamma_containers, token, ' ') ){
+    m_l1EMContainers.push_back(token);
+  }
+  std::istringstream ss_l1_egamma_names(m_l1EMBranchName);
+  while ( std::getline(ss_l1_egamma_names, token, ' ') ){
+    m_l1EMBranches.push_back(token);
+  }
+  if( !m_l1EMContainerName.empty() && m_l1EMContainers.size()!=m_l1EMBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 egamma (EM) containers must be equal to the number of L1 egamma name branches. Exiting");
+  }
+
   std::istringstream ss_vertex_containers(m_vertexContainerName);
   while ( std::getline(ss_vertex_containers, token, ' ') ){
     m_vertexContainers.push_back(token);
@@ -409,6 +433,16 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_l1TauContainerName.empty() )         {
       for(unsigned int ll=0; ll<m_l1TauContainers.size();++ll){
         helpTree->AddL1Taus(m_l1TauBranches.at(ll).c_str());
+      }
+    }
+    if (!m_l1MuonContainerName.empty() )        {    
+      for(unsigned int ll=0; ll<m_l1MuonContainers.size();++ll){
+        helpTree->AddL1Muons(m_l1MuonBranches.at(ll).c_str());
+      }
+    }
+    if (!m_l1EMContainerName.empty() )        {    
+      for(unsigned int ll=0; ll<m_l1EMContainers.size();++ll){
+        helpTree->AddL1Egammas(m_l1EMBranches.at(ll).c_str());
       }
     }
     if (!m_trigJetContainerName.empty() )      {
@@ -682,6 +716,52 @@ EL::StatusCode TreeAlgo :: execute ()
         continue;
       }
     }
+
+    if ( !m_l1MuonContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1MuonContainers.size(); ++ll ) {
+        if(m_l1MuonContainers.at(ll).find("Muon")!= std::string::npos){ // should work for the muon container we want
+          const xAOD::MuonRoIContainer* inL1Muons(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::MuonRoIContainer>(m_l1MuonContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 muon container " + m_l1MuonContainers.at(ll) + " is not available. Skipping all remaining L1 muon collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Muons, m_l1MuonContainers.at(ll), m_event, m_store, msg()) );
+         helpTree->FillL1Muons( inL1Muons, m_l1MuonBranches.at(ll), m_sortL1Muons ); 
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 muon container " + m_l1MuonContainers.at(ll) + " is not known." );
+        }
+      } // for ll
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 muon container problem - not writing the event");
+        continue;
+      }
+    } // if MuonContainer   
+
+
+    if ( !m_l1EMContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1EMContainers.size(); ++ll ) {
+        if(m_l1EMContainers.at(ll).find("EM")!= std::string::npos){ // should work for the EM container we want
+          const xAOD::eFexEMRoIContainer* inL1Egammas(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::eFexEMRoIContainer>(m_l1EMContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 egamma (EM) container " + m_l1EMContainers.at(ll) + " is not available. Skipping all remaining L1 egamma collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Egammas, m_l1EMContainers.at(ll), m_event, m_store, msg()) );
+         helpTree->FillL1Egammas( inL1Egammas, m_l1EMBranches.at(ll), m_sortL1Egammas ); 
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 egamma (EM) container " + m_l1EMContainers.at(ll) + " is not known." );
+        }
+      } // for ll
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 egamma (EM) container problem - not writing the event");
+        continue;
+      }
+    } // if EMContainer   
+
 
     if ( !m_trigJetContainerName.empty() ) {
       bool reject = false;

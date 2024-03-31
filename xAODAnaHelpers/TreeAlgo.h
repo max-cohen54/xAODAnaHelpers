@@ -67,10 +67,16 @@ public:
   std::string m_l1JetBranchName    = "L1Jet";
   std::string m_l1TauContainerName = "";
   std::string m_l1TauBranchName    = "L1Tau";
+  std::string m_l1MuonContainerName= "";
+  std::string m_l1MuonBranchName   = "L1Muon";
+  std::string m_l1EMContainerName= "";
+  std::string m_l1EMBranchName   = "L1Egamma";
   std::string m_vertexBranchName   = "vertex";
-  bool m_sortL1Jets = false;
-  bool m_sortL1Taus = false;
-  bool m_retrievePV = true;
+  bool m_sortL1Jets     = false;
+  bool m_sortL1Taus     = false;
+  bool m_sortL1Muons    = false;
+  bool m_sortL1Egammas  = false;
+  bool m_retrievePV     = true;
 
   // if these are set, assume systematics are being processed over
   std::string m_muSystsVec = "";
@@ -100,6 +106,8 @@ protected:
   std::vector<std::string> m_fatJetContainers; //!
   std::vector<std::string> m_l1JetContainers; //!
   std::vector<std::string> m_l1TauContainers; //!
+  std::vector<std::string> m_l1MuonContainers; //!
+  std::vector<std::string> m_l1EMContainers; //!
   std::vector<std::string> m_vertexContainers; //!
   std::vector<std::string> m_truthParticlesContainers; //!
 
@@ -111,6 +119,8 @@ protected:
   std::vector<std::string> m_fatJetBranches; //!
   std::vector<std::string> m_l1JetBranches; //!
   std::vector<std::string> m_l1TauBranches; //!
+  std::vector<std::string> m_l1MuonBranches; //!
+  std::vector<std::string> m_l1EMBranches; //!
   std::vector<std::string> m_vertexBranches; //!
   std::vector<std::string> m_truthParticlesBranches; //!
 

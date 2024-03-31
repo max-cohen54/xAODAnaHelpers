@@ -38,6 +38,8 @@
 #include "xAODAnaHelpers/JetContainer.h"
 #include "xAODAnaHelpers/L1JetContainer.h"
 #include "xAODAnaHelpers/L1TauContainer.h"
+#include "xAODAnaHelpers/L1MuonContainer.h"
+#include "xAODAnaHelpers/L1EMContainer.h"
 #include "xAODAnaHelpers/VertexContainer.h"
 #include "xAODAnaHelpers/ElectronContainer.h"
 #include "xAODAnaHelpers/PhotonContainer.h"
@@ -75,20 +77,22 @@ public:
   HelpTreeBase(TTree* tree, TFile* file, xAOD::TEvent *event = nullptr, xAOD::TStore* store = nullptr, const float units = 1e3, bool debug = false, std::string nominalTreeName = "nominal" );
   virtual ~HelpTreeBase();
 
-  void AddEvent         (const std::string& detailStr = "");
-  void AddTrigger       (const std::string& detailStr = "");
-  void AddJetTrigger    (const std::string& detailStr = "");
-  void AddMuons         (const std::string& detailStr = "", const std::string& muonName = "muon");
-  void AddElectrons     (const std::string& detailStr = "", const std::string& elecName = "el");
-  void AddPhotons       (const std::string& detailStr = "", const std::string& photonName = "ph");
-  void AddClusters      (const std::string& detailStr = "", const std::string& clusterName = "cl");
-  void AddJets          (const std::string& detailStr = "", const std::string& jetName = "jet");
-  void AddL1Jets        (const std::string& jetName   = "");
-  void AddL1Taus        (const std::string& tauName   = "");
-  void AddTruthParts    (const std::string& detailStr = "", const std::string& truthName = "xAH_truth");
-  void AddTrackParts    (const std::string& detailStr = "", const std::string& trackName = "trk");
-  void AddVertices      (const std::string& detailStr = "", const std::string& vertexName = "vertex"); // options for detailStr: "all" or "primary"
-  void AddTruthVertices (const std::string& detailStr = "", const std::string& vertexName = "truth_vertex"); // options for detailStr: "all" or "primary"
+  void AddEvent         (const std::string& detailStr   = "");
+  void AddTrigger       (const std::string& detailStr   = "");
+  void AddJetTrigger    (const std::string& detailStr   = "");
+  void AddMuons         (const std::string& detailStr   = "", const std::string& muonName = "muon");
+  void AddElectrons     (const std::string& detailStr   = "", const std::string& elecName = "el");
+  void AddPhotons       (const std::string& detailStr   = "", const std::string& photonName = "ph");
+  void AddClusters      (const std::string& detailStr   = "", const std::string& clusterName = "cl");
+  void AddJets          (const std::string& detailStr   = "", const std::string& jetName = "jet");
+  void AddL1Jets        (const std::string& jetName     = "");
+  void AddL1Taus        (const std::string& tauName     = "");
+  void AddL1Muons       (const std::string& muonName    = "");
+  void AddL1Egammas     (const std::string& egammaName  = "");
+  void AddTruthParts    (const std::string& detailStr   = "", const std::string& truthName = "xAH_truth");
+  void AddTrackParts    (const std::string& detailStr   = "", const std::string& trackName = "trk");
+  void AddVertices      (const std::string& detailStr   = "", const std::string& vertexName = "vertex"); // options for detailStr: "all" or "primary"
+  void AddTruthVertices (const std::string& detailStr   = "", const std::string& vertexName = "truth_vertex"); // options for detailStr: "all" or "primary"
 
   /**
    *  @brief  Declare a new collection of fatjets to be written to the output tree.
@@ -182,6 +186,27 @@ public:
     thisL1Tau->FillEmL1Taus(taus,sortL1Taus);
   }
 
+  template <typename T>
+  void FillL1Muons(T*& muons, const std::string& muonName = "L1Muon", bool sortL1Muons = false){
+
+    this->ClearL1Muons(muonName);
+    
+    xAH::L1MuonContainer* thisL1Muon = m_l1Muons[muonName];
+
+    thisL1Muon->FillL1Muons(muons, sortL1Muons);
+  }
+
+  template <typename T>
+  void FillL1Egammas(T*& egammas, const std::string& egammaName = "L1Egamma", bool sortL1Egammas = false){
+
+    this->ClearL1Egammas(egammaName);
+
+    xAH::L1EMContainer* thisL1Egamma = m_l1Egammas[egammaName];
+
+    thisL1Egamma->FillL1Egammas(egammas, sortL1Egammas);
+  }
+
+
   void FillTruth( const xAOD::TruthParticleContainer* truth, const std::string& truthName = "xAH_truth" );
   void FillTruth( const xAOD::TruthParticle* truthPart, const std::string& truthName );
 
@@ -222,6 +247,8 @@ public:
   void ClearJets          (const std::string& jetName = "jet");
   void ClearL1Jets        (const std::string& jetName = "L1Jet");
   void ClearL1Taus        (const std::string& tauName = "L1Tau");
+  void ClearL1Muons       (const std::string& muonName = "L1Muon");
+  void ClearL1Egammas     (const std::string& egammaName = "L1Egamma");
   void ClearTruth         (const std::string& truthName);
   void ClearTracks	  (const std::string& trackName);
   void ClearFatJets       (const std::string& fatjetName, const std::string& suffix="");
@@ -412,6 +439,16 @@ protected:
   //
   std::map<std::string, xAH::L1TauContainer*> m_l1Taus;
 
+  //
+  // L1 Muons
+  //
+  std::map<std::string, xAH::L1MuonContainer*> m_l1Muons;
+
+  //
+  // L1 Egammas
+  //
+  std::map<std::string, xAH::L1EMContainer*> m_l1Egammas;
+  
   //
   // Truth
   //
