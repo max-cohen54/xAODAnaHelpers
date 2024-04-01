@@ -40,6 +40,7 @@
 #include "xAODAnaHelpers/L1TauContainer.h"
 #include "xAODAnaHelpers/L1MuonContainer.h"
 #include "xAODAnaHelpers/L1EMContainer.h"
+#include "xAODAnaHelpers/L1MetContainer.h"
 #include "xAODAnaHelpers/VertexContainer.h"
 #include "xAODAnaHelpers/ElectronContainer.h"
 #include "xAODAnaHelpers/PhotonContainer.h"
@@ -89,6 +90,7 @@ public:
   void AddL1Taus        (const std::string& tauName     = "");
   void AddL1Muons       (const std::string& muonName    = "");
   void AddL1Egammas     (const std::string& egammaName  = "");
+  void AddL1Met         (const std::string& detailStr   = "", const std::string& metName     = "");
   void AddTruthParts    (const std::string& detailStr   = "", const std::string& truthName = "xAH_truth");
   void AddTrackParts    (const std::string& detailStr   = "", const std::string& trackName = "trk");
   void AddVertices      (const std::string& detailStr   = "", const std::string& vertexName = "vertex"); // options for detailStr: "all" or "primary"
@@ -206,6 +208,15 @@ public:
     thisL1Egamma->FillL1Egammas(egammas, sortL1Egammas);
   }
 
+  template <typename T>
+  void FillL1Met(T*& met, const std::string& metName = "L1Met"){
+    this->ClearL1Met(metName);
+
+    xAH::L1MetContainer* thisMet = m_l1Met[metName];
+
+    thisMet->FillL1Met(met);
+  }
+
 
   void FillTruth( const xAOD::TruthParticleContainer* truth, const std::string& truthName = "xAH_truth" );
   void FillTruth( const xAOD::TruthParticle* truthPart, const std::string& truthName );
@@ -249,6 +260,7 @@ public:
   void ClearL1Taus        (const std::string& tauName = "L1Tau");
   void ClearL1Muons       (const std::string& muonName = "L1Muon");
   void ClearL1Egammas     (const std::string& egammaName = "L1Egamma");
+  void ClearL1Met         (const std::string& metName = "L1Met");
   void ClearTruth         (const std::string& truthName);
   void ClearTracks	  (const std::string& trackName);
   void ClearFatJets       (const std::string& fatjetName, const std::string& suffix="");
@@ -438,6 +450,11 @@ protected:
   // L1 Taus
   //
   std::map<std::string, xAH::L1TauContainer*> m_l1Taus;
+
+  //
+  // L1 Met
+  //
+  std::map<std::string, xAH::L1MetContainer*> m_l1Met;
 
   //
   // L1 Muons

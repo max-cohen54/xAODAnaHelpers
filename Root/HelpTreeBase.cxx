@@ -750,6 +750,27 @@ void HelpTreeBase::ClearL1Egammas(const std::string& egammaName){
 
 }
 
+/********************
+*
+*   L1 MET
+*
+********************/
+void HelpTreeBase::AddL1Met( const std::string& detailStr, const std::string& metName)
+{
+  
+  if(m_debug) Info("AddL1Met()", "Adding MET variables %s", detailStr.c_str());
+  m_l1Met[metName] = new xAH::L1MetContainer(metName, detailStr, m_units);
+  
+  xAH::L1MetContainer* thisMet = m_l1Met[metName];
+  thisMet->setBranches(m_tree);
+}
+
+void HelpTreeBase::ClearL1Met( const std::string& metName ){
+  xAH::L1MetContainer* thisMet = m_l1Met[metName];
+  thisMet->clear();
+}
+
+
 
 /*********************
  *

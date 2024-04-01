@@ -183,6 +183,18 @@ EL::StatusCode TreeAlgo :: initialize ()
   }
   if( !m_l1EMContainerName.empty() && m_l1EMContainers.size()!=m_l1EMBranches.size()){
     ANA_MSG_ERROR( "The number of L1 egamma (EM) containers must be equal to the number of L1 egamma name branches. Exiting");
+  } 
+
+  std::istringstream ss_l1_Met_containers(m_l1MetContainerName);
+  while ( std::getline(ss_l1_Met_containers, token, ' ') ){
+    m_l1MetContainers.push_back(token);
+  }
+  std::istringstream ss_l1_Met_names(m_l1MetBranchName);
+  while ( std::getline(ss_l1_Met_names, token, ' ') ){
+    m_l1MetBranches.push_back(token);
+  }
+  if( !m_l1MetContainerName.empty() && m_l1MetContainers.size()!=m_l1MetBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 Met containers must be equal to the number of L1 Met name branches. Exiting");
   }
 
   std::istringstream ss_vertex_containers(m_vertexContainerName);
@@ -443,6 +455,11 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_l1EMContainerName.empty() )        {    
       for(unsigned int ll=0; ll<m_l1EMContainers.size();++ll){
         helpTree->AddL1Egammas(m_l1EMBranches.at(ll).c_str());
+      }
+    }
+    if (!m_l1MetContainerName.empty() )        {    
+      for(unsigned int ll=0; ll<m_l1MetContainers.size();++ll){
+        helpTree->AddL1Met(m_l1MetDetailStr, m_l1MetBranches.at(ll).c_str());
       }
     }
     if (!m_trigJetContainerName.empty() )      {
@@ -761,6 +778,29 @@ EL::StatusCode TreeAlgo :: execute ()
         continue;
       }
     } // if EMContainer   
+
+
+    if ( !m_l1MetContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1MetContainers.size(); ++ll ) {
+        if(m_l1MetContainers.at(ll).find("MET")!= std::string::npos){ // should work for the Met container we want
+          const xAOD::jFexMETRoIContainer* inL1Met(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::jFexMETRoIContainer>(m_l1MetContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 Met container " + m_l1MetContainers.at(ll) + " is not available. Skipping all remaining L1 Met collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Met, m_l1MetContainers.at(ll), m_event, m_store, msg()) );
+         helpTree->FillL1Met( inL1Met, m_l1MetBranches.at(ll) ); 
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 Met container " + m_l1MetContainers.at(ll) + " is not known." );
+        }
+      } // for ll
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 Met container problem - not writing the event");
+        continue;
+      }
+    } // if MetContainer   
 
 
     if ( !m_trigJetContainerName.empty() ) {

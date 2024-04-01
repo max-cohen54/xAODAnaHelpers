@@ -36,6 +36,7 @@ public:
   std::string m_truthParticlesDetailStr = "";
   std::string m_trackParticlesDetailStr = "";
   std::string m_vertexDetailStr = "";
+  std::string m_l1MetDetailStr = "";
 
   std::string m_evtContainerName = "";
   std::string m_muContainerName = "";
@@ -71,6 +72,8 @@ public:
   std::string m_l1MuonBranchName   = "L1Muon";
   std::string m_l1EMContainerName= "";
   std::string m_l1EMBranchName   = "L1Egamma";
+  std::string m_l1MetContainerName= "";
+  std::string m_l1MetBranchName   = "L1Egamma";
   std::string m_vertexBranchName   = "vertex";
   bool m_sortL1Jets     = false;
   bool m_sortL1Taus     = false;
@@ -108,6 +111,7 @@ protected:
   std::vector<std::string> m_l1TauContainers; //!
   std::vector<std::string> m_l1MuonContainers; //!
   std::vector<std::string> m_l1EMContainers; //!
+  std::vector<std::string> m_l1MetContainers; //!
   std::vector<std::string> m_vertexContainers; //!
   std::vector<std::string> m_truthParticlesContainers; //!
 
@@ -121,6 +125,7 @@ protected:
   std::vector<std::string> m_l1TauBranches; //!
   std::vector<std::string> m_l1MuonBranches; //!
   std::vector<std::string> m_l1EMBranches; //!
+  std::vector<std::string> m_l1MetBranches; //!
   std::vector<std::string> m_vertexBranches; //!
   std::vector<std::string> m_truthParticlesBranches; //!
 
