@@ -18,10 +18,10 @@ L1MetContainer::~L1MetContainer()
 void L1MetContainer::setTree(TTree *tree)
 {
 
-  connectBranch<float>(tree, "Met",    &m_l1Met   );
-  connectBranch<float>(tree, "MetPx",  &m_l1Met   );
-  connectBranch<float>(tree, "MetPy",  &m_l1Met   );
-  connectBranch<float>(tree, "MetPhi", &m_l1Met   );
+  connectBranch<float>(tree, "Met",    &m_l1Met      );
+  connectBranch<float>(tree, "MetPx",  &m_l1Met_Px   );
+  connectBranch<float>(tree, "MetPy",  &m_l1Met_Py   );
+  connectBranch<float>(tree, "MetPhi", &m_l1Met_phi  );
 
 }
 
