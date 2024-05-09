@@ -92,6 +92,20 @@ EL::StatusCode TreeAlgo :: initialize ()
   }
   
   // --------------------------
+
+  std::istringstream ss_photon_containers(m_photonContainerName);
+  while ( std::getline(ss_photon_containers, token, ' ') ){
+    m_photonContainers.push_back(token);
+  }
+  std::istringstream ss_photon_names(m_photonBranchName);
+  while ( std::getline(ss_photon_names, token, ' ') ){
+    m_photonBranches.push_back(token);
+  }
+  if( !m_photonContainerName.empty() && m_photonContainers.size()!=m_photonBranches.size()){
+    ANA_MSG_ERROR( "The number of photon containers must be equal to the number of photon name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+
   std::istringstream ss_trig_containers(m_trigJetContainerName);
   while ( std::getline(ss_trig_containers, token, ' ') ){
     m_trigJetContainers.push_back(token);
@@ -431,6 +445,14 @@ EL::StatusCode TreeAlgo :: execute ()
     }    
 
     // ---------------------------------------------------
+
+    if (!m_photonContainerName.empty() )           {
+      for(unsigned int ll=0; ll<m_photonContainers.size();++ll){
+        helpTree->AddPhotons       (m_photonDetailStr, m_photonBranches.at(ll));
+      }
+    }  
+
+
     if (!m_jetContainerName.empty() )           {
       for(unsigned int ll=0; ll<m_jetContainers.size();++ll){
         if(m_jetDetails.size()==1) helpTree->AddJets       (m_jetDetailStr, m_jetBranches.at(ll).c_str());
@@ -492,7 +514,6 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_METReferenceContainerName.empty() )  { helpTree->AddMET(m_METReferenceDetailStr, "referenceMet");       }
     if (!m_TrigMETContainerName.empty() )           { helpTree->AddTrigMET(m_TrigMETDetailStr);                                }
     if (!m_TrigMETReferenceContainerName.empty() )  { helpTree->AddTrigMET(m_TrigMETReferenceDetailStr, "referenceMet");       }
-    if (!m_photonContainerName.empty() )        { helpTree->AddPhotons(m_photonDetailStr);                         }
     if (!m_truthParticlesContainerName.empty()) {
       for(unsigned int ll=0; ll<m_truthParticlesContainers.size();++ll){
         helpTree->AddTruthParts(m_truthParticlesDetailStr, m_truthParticlesBranches.at(ll).c_str());
@@ -897,11 +918,16 @@ EL::StatusCode TreeAlgo :: execute ()
     }
 
     if ( !m_METContainerName.empty() ) {
+      std::cout << "test1" << std::endl;
       if ( !HelperFunctions::isAvailable<xAOD::MissingETContainer>(m_METContainerName + metSuffix, m_event, m_store, msg()) ) continue;
+
+      std::cout << "test2" << std::endl;
 
       const xAOD::MissingETContainer* inMETCont(nullptr);
       ANA_CHECK( HelperFunctions::retrieve(inMETCont, m_METContainerName + metSuffix, m_event, m_store, msg()) );
+      std::cout << "test3" << std::endl;
       helpTree->FillMET( inMETCont );
+      std::cout << "test4" << std::endl;
     }
 
     if ( !m_METReferenceContainerName.empty() ) {
@@ -929,11 +955,25 @@ EL::StatusCode TreeAlgo :: execute ()
     }
 
     if ( !m_photonContainerName.empty() ) {
-      if ( !HelperFunctions::isAvailable<xAOD::PhotonContainer>(m_photonContainerName + photonSuffix, m_event, m_store, msg()) ) continue;
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_photonContainers.size(); ++ll ) { // Systs for all containers
+        const xAOD::PhotonContainer* inPhoton(nullptr);
+        if ( !HelperFunctions::isAvailable<xAOD::PhotonContainer>(m_photonContainers.at(ll)+photonSuffix, m_event, m_store, msg()) ) {
+          ANA_MSG_DEBUG( "The photon container " + m_photonContainers.at(ll)+photonSuffix + " is not available. Skipping all remaining photon collections");
+          reject = true;
+          break;
+        }
+       
+        ANA_CHECK( HelperFunctions::retrieve(inPhoton, m_photonContainers.at(ll)+photonSuffix, m_event, m_store, msg()) );
 
-      const xAOD::PhotonContainer* inPhotons(nullptr);
-      ANA_CHECK( HelperFunctions::retrieve(inPhotons, m_photonContainerName+photonSuffix, m_event, m_store, msg()) );
-      helpTree->FillPhotons( inPhotons );
+        helpTree->FillPhotons( inPhoton, m_photonBranches.at(ll) );
+        
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a photon container problem - not writing the event");
+        continue;
+      }
     }
 
     if ( !m_truthParticlesContainerName.empty() ) {
