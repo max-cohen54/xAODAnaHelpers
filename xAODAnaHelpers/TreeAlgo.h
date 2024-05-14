@@ -29,17 +29,23 @@ public:
   std::string m_tauDetailStr = "";
   std::string m_METDetailStr = "";
   std::string m_METReferenceDetailStr = "";
+  std::string m_TrigMETDetailStr = "";
+  std::string m_TrigMETReferenceDetailStr = "";
   std::string m_photonDetailStr = "";
   std::string m_clusterDetailStr = "";
   std::string m_truthParticlesDetailStr = "";
   std::string m_trackParticlesDetailStr = "";
   std::string m_vertexDetailStr = "";
+  std::string m_l1MetDetailStr = "";
 
   std::string m_evtContainerName = "";
   std::string m_muContainerName = "";
   std::string m_elContainerName = "";
   std::string m_jetContainerName = "";
   std::string m_jetBranchName = "jet";
+  std::string m_elBranchName = "el"; // -------------------------------
+  std::string m_muBranchName = "muon";
+  std::string m_photonBranchName = "photon";
   std::string m_truthJetContainerName = "";
   std::string m_truthJetBranchName = "truthJet";
   std::string m_trigJetContainerName = "";
@@ -51,6 +57,8 @@ public:
   std::string m_tauContainerName = "";
   std::string m_METContainerName = "";
   std::string m_METReferenceContainerName = "";
+  std::string m_TrigMETContainerName = "";
+  std::string m_TrigMETReferenceContainerName = "";
   std::string m_photonContainerName = "";
   std::string m_clusterContainerName = "";
   std::string m_clusterBranchName = "CaloCalTopoClusters";
@@ -59,9 +67,20 @@ public:
   std::string m_trackParticlesContainerName = "";
   std::string m_l1JetContainerName = "";
   std::string m_l1JetBranchName    = "L1Jet";
+  std::string m_l1TauContainerName = "";
+  std::string m_l1TauBranchName    = "L1Tau";
+  std::string m_l1MuonContainerName= "";
+  std::string m_l1MuonBranchName   = "L1Muon";
+  std::string m_l1EMContainerName= "";
+  std::string m_l1EMBranchName   = "L1Egamma";
+  std::string m_l1MetContainerName= "";
+  std::string m_l1MetBranchName   = "L1Egamma";
   std::string m_vertexBranchName   = "vertex";
-  bool m_sortL1Jets = false;
-  bool m_retrievePV = true;
+  bool m_sortL1Jets     = false;
+  bool m_sortL1Taus     = false;
+  bool m_sortL1Muons    = false;
+  bool m_sortL1Egammas  = false;
+  bool m_retrievePV     = true;
 
   // if these are set, assume systematics are being processed over
   std::string m_muSystsVec = "";
@@ -84,18 +103,32 @@ protected:
   std::vector<std::string> m_fatJetDetails; //!
 
   std::vector<std::string> m_jetContainers; //!
+  std::vector<std::string> m_elContainers; //! -------------------------------------
+  std::vector<std::string> m_muContainers; //!
+  std::vector<std::string> m_photonContainers; //!
   std::vector<std::string> m_truthJetContainers; //!
   std::vector<std::string> m_trigJetContainers; //!
   std::vector<std::string> m_fatJetContainers; //!
   std::vector<std::string> m_l1JetContainers; //!
+  std::vector<std::string> m_l1TauContainers; //!
+  std::vector<std::string> m_l1MuonContainers; //!
+  std::vector<std::string> m_l1EMContainers; //!
+  std::vector<std::string> m_l1MetContainers; //!
   std::vector<std::string> m_vertexContainers; //!
   std::vector<std::string> m_truthParticlesContainers; //!
 
   std::vector<std::string> m_jetBranches; //!
+  std::vector<std::string> m_elBranches; //! ---------------------------------------
+  std::vector<std::string> m_muBranches; //!
+  std::vector<std::string> m_photonBranches; //!
   std::vector<std::string> m_truthJetBranches; //!
   std::vector<std::string> m_trigJetBranches; //!
   std::vector<std::string> m_fatJetBranches; //!
   std::vector<std::string> m_l1JetBranches; //!
+  std::vector<std::string> m_l1TauBranches; //!
+  std::vector<std::string> m_l1MuonBranches; //!
+  std::vector<std::string> m_l1EMBranches; //!
+  std::vector<std::string> m_l1MetBranches; //!
   std::vector<std::string> m_vertexBranches; //!
   std::vector<std::string> m_truthParticlesBranches; //!
 

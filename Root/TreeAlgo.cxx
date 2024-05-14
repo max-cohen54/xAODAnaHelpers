@@ -59,6 +59,53 @@ EL::StatusCode TreeAlgo :: initialize ()
     ANA_MSG_ERROR( "The number of jet containers must be equal to the number of jet name branches. Exiting");
     return EL::StatusCode::FAILURE;
   }
+
+  // --------------------------
+  // EDITED IN HERE:
+  //std::cout << "ELECTRON 1!!" << std::endl;
+  std::istringstream ss_el_containers(m_elContainerName);
+  while ( std::getline(ss_el_containers, token, ' ') ){
+    m_elContainers.push_back(token);
+  }
+  std::istringstream ss_el_names(m_elBranchName);
+  while ( std::getline(ss_el_names, token, ' ') ){
+    m_elBranches.push_back(token);
+  }
+  if( !m_elContainerName.empty() && m_elContainers.size()!=m_elBranches.size()){
+    ANA_MSG_ERROR( "The number of electron containers must be equal to the number of elecron name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+
+
+
+  std::istringstream ss_mu_containers(m_muContainerName);
+  while ( std::getline(ss_mu_containers, token, ' ') ){
+    m_muContainers.push_back(token);
+  }
+  std::istringstream ss_mu_names(m_muBranchName);
+  while ( std::getline(ss_mu_names, token, ' ') ){
+    m_muBranches.push_back(token);
+  }
+  if( !m_muContainerName.empty() && m_muContainers.size()!=m_muBranches.size()){
+    ANA_MSG_ERROR( "The number of muon containers must be equal to the number of muon name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+  
+  // --------------------------
+
+  std::istringstream ss_photon_containers(m_photonContainerName);
+  while ( std::getline(ss_photon_containers, token, ' ') ){
+    m_photonContainers.push_back(token);
+  }
+  std::istringstream ss_photon_names(m_photonBranchName);
+  while ( std::getline(ss_photon_names, token, ' ') ){
+    m_photonBranches.push_back(token);
+  }
+  if( !m_photonContainerName.empty() && m_photonContainers.size()!=m_photonBranches.size()){
+    ANA_MSG_ERROR( "The number of photon containers must be equal to the number of photon name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+
   std::istringstream ss_trig_containers(m_trigJetContainerName);
   while ( std::getline(ss_trig_containers, token, ' ') ){
     m_trigJetContainers.push_back(token);
@@ -102,17 +149,66 @@ EL::StatusCode TreeAlgo :: initialize ()
     return EL::StatusCode::FAILURE;
   }
 
-  std::istringstream ss_l1_containers(m_l1JetContainerName);
-  while ( std::getline(ss_l1_containers, token, ' ') ){
+  std::istringstream ss_l1_jet_containers(m_l1JetContainerName);
+  while ( std::getline(ss_l1_jet_containers, token, ' ') ){
     m_l1JetContainers.push_back(token);
   }
-  std::istringstream ss_l1_names(m_l1JetBranchName);
-  while ( std::getline(ss_l1_names, token, ' ') ){
+  std::istringstream ss_l1_jet_names(m_l1JetBranchName);
+  while ( std::getline(ss_l1_jet_names, token, ' ') ){
     m_l1JetBranches.push_back(token);
   }
   if( !m_l1JetContainerName.empty() && m_l1JetContainers.size()!=m_l1JetBranches.size()){
     ANA_MSG_ERROR( "The number of L1 jet containers must be equal to the number of L1 jet name branches. Exiting");
     return EL::StatusCode::FAILURE;
+  }
+
+  std::istringstream ss_l1_tau_containers(m_l1TauContainerName);
+  while ( std::getline(ss_l1_tau_containers, token, ' ') ){
+    m_l1TauContainers.push_back(token);
+  }
+  std::istringstream ss_l1_tau_names(m_l1TauBranchName);
+  while ( std::getline(ss_l1_tau_names, token, ' ') ){
+    m_l1TauBranches.push_back(token);
+  }
+  if( !m_l1TauContainerName.empty() && m_l1TauContainers.size()!=m_l1TauBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 tau containers must be equal to the number of L1 tau name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+
+  std::istringstream ss_l1_muon_containers(m_l1MuonContainerName);
+  while ( std::getline(ss_l1_muon_containers, token, ' ') ){
+    m_l1MuonContainers.push_back(token);
+  }
+  std::istringstream ss_l1_muon_names(m_l1MuonBranchName);
+  while ( std::getline(ss_l1_muon_names, token, ' ') ){
+    m_l1MuonBranches.push_back(token);
+  }
+  if( !m_l1MuonContainerName.empty() && m_l1MuonContainers.size()!=m_l1MuonBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 muon containers must be equal to the number of L1 muon name branches. Exiting");
+  }
+
+  std::istringstream ss_l1_egamma_containers(m_l1EMContainerName);
+  while ( std::getline(ss_l1_egamma_containers, token, ' ') ){
+    m_l1EMContainers.push_back(token);
+  }
+  std::istringstream ss_l1_egamma_names(m_l1EMBranchName);
+  while ( std::getline(ss_l1_egamma_names, token, ' ') ){
+    m_l1EMBranches.push_back(token);
+  }
+  if( !m_l1EMContainerName.empty() && m_l1EMContainers.size()!=m_l1EMBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 egamma (EM) containers must be equal to the number of L1 egamma name branches. Exiting");
+  } 
+
+  std::istringstream ss_l1_Met_containers(m_l1MetContainerName);
+  while ( std::getline(ss_l1_Met_containers, token, ' ') ){
+    m_l1MetContainers.push_back(token);
+  }
+  std::istringstream ss_l1_Met_names(m_l1MetBranchName);
+  while ( std::getline(ss_l1_Met_names, token, ' ') ){
+    m_l1MetBranches.push_back(token);
+  }
+  if( !m_l1MetContainerName.empty() && m_l1MetContainers.size()!=m_l1MetBranches.size()){
+    ANA_MSG_ERROR( "The number of L1 Met containers must be equal to the number of L1 Met name branches. Exiting");
   }
 
   std::istringstream ss_vertex_containers(m_vertexContainerName);
@@ -141,7 +237,7 @@ EL::StatusCode TreeAlgo :: initialize ()
     return EL::StatusCode::FAILURE;
   }
 
-  // allow to store different variables for each jet collection (reco, trig, fat only, default: store the same)
+  // allow to store different variables for each jet collection (reco, trig, fat only, default: store the same) ------------------------- maybe also have to do this with electrons
   std::istringstream ss(m_jetDetailStr);
   while ( std::getline(ss, token, '|') ){
     m_jetDetails.push_back(token);
@@ -324,9 +420,39 @@ EL::StatusCode TreeAlgo :: execute ()
 
     // initialize all branch addresses since we just added this tree
     helpTree->AddEvent( m_evtDetailStr );
+    std::cout << m_trigDetailStr << std::endl;
     if (!m_trigDetailStr.empty() )              { helpTree->AddTrigger(m_trigDetailStr);                           }
-    if (!m_muContainerName.empty() )            { helpTree->AddMuons(m_muDetailStr);                               }
-    if (!m_elContainerName.empty() )            { helpTree->AddElectrons(m_elDetailStr);                           }
+
+
+
+    // ---------------------------------------------------
+    // EDITED IN HERE:
+
+    //if (!m_muContainerName.empty() )            { helpTree->AddMuons(m_muDetailStr);                               }
+    if (!m_muContainerName.empty() )           {
+      for(unsigned int ll=0; ll<m_muContainers.size();++ll){
+        helpTree->AddMuons       (m_muDetailStr, m_muBranches.at(ll));
+      }
+    }   
+
+    //if (!m_elContainerName.empty() )            { helpTree->AddElectrons(m_elDetailStr);                           }
+    //std::cout << "ELECTRON 2!!" << std::endl;
+    if (!m_elContainerName.empty() )           {
+      for(unsigned int ll=0; ll<m_elContainers.size();++ll){
+        //helpTree->AddElectrons       (m_elDetailStr, m_jetBranches.at(ll).c_str());
+        helpTree->AddElectrons       (m_elDetailStr, m_elBranches.at(ll));
+      }
+    }    
+
+    // ---------------------------------------------------
+
+    if (!m_photonContainerName.empty() )           {
+      for(unsigned int ll=0; ll<m_photonContainers.size();++ll){
+        helpTree->AddPhotons       (m_photonDetailStr, m_photonBranches.at(ll));
+      }
+    }  
+
+
     if (!m_jetContainerName.empty() )           {
       for(unsigned int ll=0; ll<m_jetContainers.size();++ll){
         if(m_jetDetails.size()==1) helpTree->AddJets       (m_jetDetailStr, m_jetBranches.at(ll).c_str());
@@ -336,6 +462,26 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_l1JetContainerName.empty() )         {
       for(unsigned int ll=0; ll<m_l1JetContainers.size();++ll){
         helpTree->AddL1Jets(m_l1JetBranches.at(ll).c_str());
+      }
+    }
+    if (!m_l1TauContainerName.empty() )         {
+      for(unsigned int ll=0; ll<m_l1TauContainers.size();++ll){
+        helpTree->AddL1Taus(m_l1TauBranches.at(ll).c_str());
+      }
+    }
+    if (!m_l1MuonContainerName.empty() )        {    
+      for(unsigned int ll=0; ll<m_l1MuonContainers.size();++ll){
+        helpTree->AddL1Muons(m_l1MuonBranches.at(ll).c_str());
+      }
+    }
+    if (!m_l1EMContainerName.empty() )        {    
+      for(unsigned int ll=0; ll<m_l1EMContainers.size();++ll){
+        helpTree->AddL1Egammas(m_l1EMBranches.at(ll).c_str());
+      }
+    }
+    if (!m_l1MetContainerName.empty() )        {    
+      for(unsigned int ll=0; ll<m_l1MetContainers.size();++ll){
+        helpTree->AddL1Met(m_l1MetDetailStr, m_l1MetBranches.at(ll).c_str());
       }
     }
     if (!m_trigJetContainerName.empty() )      {
@@ -366,7 +512,8 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_tauContainerName.empty() )           { helpTree->AddTaus(m_tauDetailStr);                               }
     if (!m_METContainerName.empty() )           { helpTree->AddMET(m_METDetailStr);                                }
     if (!m_METReferenceContainerName.empty() )  { helpTree->AddMET(m_METReferenceDetailStr, "referenceMet");       }
-    if (!m_photonContainerName.empty() )        { helpTree->AddPhotons(m_photonDetailStr);                         }
+    if (!m_TrigMETContainerName.empty() )           { helpTree->AddTrigMET(m_TrigMETDetailStr);                                }
+    if (!m_TrigMETReferenceContainerName.empty() )  { helpTree->AddTrigMET(m_TrigMETReferenceDetailStr, "referenceMet");       }
     if (!m_truthParticlesContainerName.empty()) {
       for(unsigned int ll=0; ll<m_truthParticlesContainers.size();++ll){
         helpTree->AddTruthParts(m_truthParticlesDetailStr, m_truthParticlesBranches.at(ll).c_str());
@@ -434,22 +581,74 @@ EL::StatusCode TreeAlgo :: execute ()
     }*/
 
     // for the containers the were supplied, fill the appropriate vectors
+
+    // -------------------------------------------------------------------------------------
+    // EDITED IN HERE:
+    // if ( !m_muContainerName.empty() ) {
+    //   if ( !HelperFunctions::isAvailable<xAOD::MuonContainer>(m_muContainerName + muSuffix, m_event, m_store, msg()) ) continue;
+
+    //   const xAOD::MuonContainer* inMuon(nullptr);
+    //   ANA_CHECK( HelperFunctions::retrieve(inMuon, m_muContainerName+muSuffix, m_event, m_store, msg()) );
+    //   helpTree->FillMuons( inMuon, primaryVertex );
+    // }
     if ( !m_muContainerName.empty() ) {
-      if ( !HelperFunctions::isAvailable<xAOD::MuonContainer>(m_muContainerName + muSuffix, m_event, m_store, msg()) ) continue;
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_muContainers.size(); ++ll ) { // Systs for all jet containers
+        const xAOD::MuonContainer* inMuon(nullptr);
+        if ( !HelperFunctions::isAvailable<xAOD::MuonContainer>(m_muContainers.at(ll)+muSuffix, m_event, m_store, msg()) ) {
+          ANA_MSG_DEBUG( "The muon container " + m_muContainers.at(ll)+muSuffix + " is not available. Skipping all remaining muon collections");
+          reject = true;
+          break;
+        }
+       
+        ANA_CHECK( HelperFunctions::retrieve(inMuon, m_muContainers.at(ll)+muSuffix, m_event, m_store, msg()) );
 
-      const xAOD::MuonContainer* inMuon(nullptr);
-      ANA_CHECK( HelperFunctions::retrieve(inMuon, m_muContainerName+muSuffix, m_event, m_store, msg()) );
-      helpTree->FillMuons( inMuon, primaryVertex );
+        helpTree->FillMuons( inMuon, primaryVertex, m_muBranches.at(ll) );
+        
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a muon container problem - not writing the event");
+        continue;
+      }
     }
 
+    // if ( !m_elContainerName.empty() ) {
+    //   if ( !HelperFunctions::isAvailable<xAOD::ElectronContainer>(m_elContainerName + elSuffix, m_event, m_store, msg()) ) continue;
+
+    //   const xAOD::ElectronContainer* inElec(nullptr);
+    //   ANA_CHECK( HelperFunctions::retrieve(inElec, m_elContainerName+elSuffix, m_event, m_store, msg()) );
+    //   helpTree->FillElectrons( inElec, primaryVertex );
+    // }
+
+    //std::cout << "ELECTRON 3!!" << std::endl;
     if ( !m_elContainerName.empty() ) {
-      if ( !HelperFunctions::isAvailable<xAOD::ElectronContainer>(m_elContainerName + elSuffix, m_event, m_store, msg()) ) continue;
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_elContainers.size(); ++ll ) { // Systs for all jet containers
+        const xAOD::ElectronContainer* inElec(nullptr);
+        if ( !HelperFunctions::isAvailable<xAOD::ElectronContainer>(m_elContainers.at(ll)+elSuffix, m_event, m_store, msg()) ) {
+          ANA_MSG_DEBUG( "The elecron container " + m_elContainers.at(ll)+elSuffix + " is not available. Skipping all remaining electron collections");
+          reject = true;
+          break;
+        }
+        //std::cout << "ELECTRON 3 MIDDLE 1!!" << std::endl;
+        ANA_CHECK( HelperFunctions::retrieve(inElec, m_elContainers.at(ll)+elSuffix, m_event, m_store, msg()) );
+        //std::cout << m_elContainers.at(ll)+elSuffix << std::endl;
 
-      const xAOD::ElectronContainer* inElec(nullptr);
-      ANA_CHECK( HelperFunctions::retrieve(inElec, m_elContainerName+elSuffix, m_event, m_store, msg()) );
-      helpTree->FillElectrons( inElec, primaryVertex );
+
+        //std::cout << "ELECTRON 3 MIDDLE 2!!" << std::endl;
+        helpTree->FillElectrons( inElec, primaryVertex, m_elBranches.at(ll) );
+        // helpTree->FillElectrons( inElec, HelperFunctions::getPrimaryVertexLocation(vertices, msg()), m_elBranches.at(ll) );
+        //std::cout << "ELECTRON 3 MIDDLE 3!!" << std::endl;
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was an electron container problem - not writing the event");
+        continue;
+      }
     }
-
+    //std::cout << "ELECTRON 3 END!!" << std::endl;
+    // -------------------------------------------------------------------------------------
     if ( !m_jetContainerName.empty() ) {
       bool reject = false;
       for ( unsigned int ll = 0; ll < m_jetContainers.size(); ++ll ) { // Systs for all jet containers
@@ -517,6 +716,113 @@ EL::StatusCode TreeAlgo :: execute ()
         continue;
       }
     }
+
+    if ( !m_l1TauContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1TauContainers.size(); ++ll ) {
+        if(m_l1TauContainers.at(ll).find("jFex")!= std::string::npos){ // jFEX
+          const xAOD::jFexTauRoIContainer* inL1Taus(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::jFexTauRoIContainer>(m_l1TauContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 tau container " + m_l1TauContainers.at(ll) + " is not available. Skipping all remaining L1 tau collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Taus, m_l1TauContainers.at(ll), m_event, m_store, msg()) );
+          helpTree->FillFexL1Taus( inL1Taus, m_l1TauBranches.at(ll), m_sortL1Taus );
+        }else if(m_l1TauContainers.at(ll).find("Em")!= std::string::npos){ // Em
+          const xAOD::EmTauRoIContainer* inL1Taus(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::EmTauRoIContainer>(m_l1TauContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 tau container " + m_l1TauContainers.at(ll) + " is not available. Skipping all remaining L1 tau collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Taus, m_l1TauContainers.at(ll), m_event, m_store, msg()) );
+          helpTree->FillEmL1Taus( inL1Taus, m_l1TauBranches.at(ll), m_sortL1Taus ); 
+        }else if(m_l1TauContainers.at(ll).find("Tau")!= std::string::npos){ // eFEX
+          const xAOD::eFexTauRoIContainer* inL1Taus(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::eFexTauRoIContainer>(m_l1TauContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 tau container " + m_l1TauContainers.at(ll) + " is not available. Skipping all remaining L1 tau collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Taus, m_l1TauContainers.at(ll), m_event, m_store, msg()) );
+          helpTree->FillFexL1Taus( inL1Taus, m_l1TauBranches.at(ll), m_sortL1Taus );            
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 tau container " + m_l1TauContainers.at(ll) + " is not known." );
+        }
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 tau container problem - not writing the event");
+        continue;
+      }
+    }
+
+    if ( !m_l1MuonContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1MuonContainers.size(); ++ll ) {
+        if(m_l1MuonContainers.at(ll).find("Muon")!= std::string::npos){ // should work for the muon container we want
+          const xAOD::MuonRoIContainer* inL1Muons(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::MuonRoIContainer>(m_l1MuonContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 muon container " + m_l1MuonContainers.at(ll) + " is not available. Skipping all remaining L1 muon collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Muons, m_l1MuonContainers.at(ll), m_event, m_store, msg()) );
+         helpTree->FillL1Muons( inL1Muons, m_l1MuonBranches.at(ll), m_sortL1Muons ); 
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 muon container " + m_l1MuonContainers.at(ll) + " is not known." );
+        }
+      } // for ll
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 muon container problem - not writing the event");
+        continue;
+      }
+    } // if MuonContainer   
+
+
+    if ( !m_l1EMContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1EMContainers.size(); ++ll ) {
+        if(m_l1EMContainers.at(ll).find("EM")!= std::string::npos){ // should work for the EM container we want
+          const xAOD::eFexEMRoIContainer* inL1Egammas(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::eFexEMRoIContainer>(m_l1EMContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 egamma (EM) container " + m_l1EMContainers.at(ll) + " is not available. Skipping all remaining L1 egamma collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Egammas, m_l1EMContainers.at(ll), m_event, m_store, msg()) );
+         helpTree->FillL1Egammas( inL1Egammas, m_l1EMBranches.at(ll), m_sortL1Egammas ); 
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 egamma (EM) container " + m_l1EMContainers.at(ll) + " is not known." );
+        }
+      } // for ll
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 egamma (EM) container problem - not writing the event");
+        continue;
+      }
+    } // if EMContainer   
+
+
+    if ( !m_l1MetContainerName.empty() ){
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_l1MetContainers.size(); ++ll ) {
+        if(m_l1MetContainers.at(ll).find("MET")!= std::string::npos){ // should work for the Met container we want
+          const xAOD::jFexMETRoIContainer* inL1Met(nullptr);
+          if ( !HelperFunctions::isAvailable<xAOD::jFexMETRoIContainer>(m_l1MetContainers.at(ll), m_event, m_store, msg()) ){
+            ANA_MSG_DEBUG( "The L1 Met container " + m_l1MetContainers.at(ll) + " is not available. Skipping all remaining L1 Met collections");
+            reject = true;
+          }
+          ANA_CHECK( HelperFunctions::retrieve(inL1Met, m_l1MetContainers.at(ll), m_event, m_store, msg()) );
+         helpTree->FillL1Met( inL1Met, m_l1MetBranches.at(ll) ); 
+        }else{
+          ANA_MSG_DEBUG( "Phase 1 L1 Met container " + m_l1MetContainers.at(ll) + " is not known." );
+        }
+      } // for ll
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a L1 Met container problem - not writing the event");
+        continue;
+      }
+    } // if MetContainer   
+
 
     if ( !m_trigJetContainerName.empty() ) {
       bool reject = false;
@@ -612,11 +918,16 @@ EL::StatusCode TreeAlgo :: execute ()
     }
 
     if ( !m_METContainerName.empty() ) {
+      std::cout << "test1" << std::endl;
       if ( !HelperFunctions::isAvailable<xAOD::MissingETContainer>(m_METContainerName + metSuffix, m_event, m_store, msg()) ) continue;
+
+      std::cout << "test2" << std::endl;
 
       const xAOD::MissingETContainer* inMETCont(nullptr);
       ANA_CHECK( HelperFunctions::retrieve(inMETCont, m_METContainerName + metSuffix, m_event, m_store, msg()) );
+      std::cout << "test3" << std::endl;
       helpTree->FillMET( inMETCont );
+      std::cout << "test4" << std::endl;
     }
 
     if ( !m_METReferenceContainerName.empty() ) {
@@ -627,12 +938,42 @@ EL::StatusCode TreeAlgo :: execute ()
       helpTree->FillMET( inMETCont, "referenceMet" );
     }
 
-    if ( !m_photonContainerName.empty() ) {
-      if ( !HelperFunctions::isAvailable<xAOD::PhotonContainer>(m_photonContainerName + photonSuffix, m_event, m_store, msg()) ) continue;
+    if ( !m_TrigMETContainerName.empty() ) {
+      if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) ) continue;
 
-      const xAOD::PhotonContainer* inPhotons(nullptr);
-      ANA_CHECK( HelperFunctions::retrieve(inPhotons, m_photonContainerName+photonSuffix, m_event, m_store, msg()) );
-      helpTree->FillPhotons( inPhotons );
+      const xAOD::TrigMissingETContainer* inTrigMETCont(nullptr);
+      ANA_CHECK( HelperFunctions::retrieve(inTrigMETCont, m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) );
+      helpTree->FillTrigMET( inTrigMETCont );
+    }
+
+    if ( !m_TrigMETReferenceContainerName.empty() ) {
+      if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETReferenceContainerName, m_event, m_store, msg()) ) continue;
+
+      const xAOD::TrigMissingETContainer* inTrigMETCont(nullptr);
+      ANA_CHECK( HelperFunctions::retrieve(inTrigMETCont, m_TrigMETReferenceContainerName, m_event, m_store, msg()) );
+      helpTree->FillTrigMET( inTrigMETCont, "referenceMet" );
+    }
+
+    if ( !m_photonContainerName.empty() ) {
+      bool reject = false;
+      for ( unsigned int ll = 0; ll < m_photonContainers.size(); ++ll ) { // Systs for all containers
+        const xAOD::PhotonContainer* inPhoton(nullptr);
+        if ( !HelperFunctions::isAvailable<xAOD::PhotonContainer>(m_photonContainers.at(ll)+photonSuffix, m_event, m_store, msg()) ) {
+          ANA_MSG_DEBUG( "The photon container " + m_photonContainers.at(ll)+photonSuffix + " is not available. Skipping all remaining photon collections");
+          reject = true;
+          break;
+        }
+       
+        ANA_CHECK( HelperFunctions::retrieve(inPhoton, m_photonContainers.at(ll)+photonSuffix, m_event, m_store, msg()) );
+
+        helpTree->FillPhotons( inPhoton, m_photonBranches.at(ll) );
+        
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a photon container problem - not writing the event");
+        continue;
+      }
     }
 
     if ( !m_truthParticlesContainerName.empty() ) {

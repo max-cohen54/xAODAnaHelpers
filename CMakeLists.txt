@@ -43,7 +43,7 @@ atlas_add_library( xAODAnaHelpersLib xAODAnaHelpers/*.h Root/*.h Root/*.cxx ${xA
                    EGammaVariableCorrectionLib
                    FTagAnalysisInterfacesLib JetAnalysisInterfacesLib MuonAnalysisInterfacesLib
                    PhotonEfficiencyCorrectionLib METUtilitiesLib METInterface
-                   TauAnalysisToolsLib AsgTools xAODMissingET
+                   TauAnalysisToolsLib AsgTools xAODMissingET xAODTrigMissingET
                    AssociationUtilsLib JetEDM JetUncertaintiesLib
                    JetCPInterfaces xAODBTagging xAODBTaggingEfficiencyLib TrigConfxAODLib
                    TrigDecisionToolLib xAODCutFlow JetMomentToolsLib

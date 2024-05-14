@@ -91,6 +91,10 @@ HelpTreeBase::~HelpTreeBase() {
     for (auto met: m_met)
       delete met.second;
 
+    //mettrig
+    for (auto met: m_trigmet)
+      delete met.second;
+
     //jet
     for (auto jet: m_jets)
       delete jet.second;
@@ -655,6 +659,118 @@ void HelpTreeBase::ClearL1Jets(const std::string& jetName) {
 
 }
 
+/*********************
+ *
+ *   L1 TAUS
+ *
+ ********************/
+
+void HelpTreeBase::AddL1Taus( const std::string& tauName)
+{
+
+  if(m_debug) Info("AddL1Taus()", "Adding %s L1 taus", tauName.c_str());
+
+  m_l1Taus[tauName] = new xAH::L1TauContainer(tauName, m_units, m_isMC);
+  m_l1Taus[tauName]->m_debug = m_debug;
+
+  xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  thisL1Tau->setBranches(m_tree);
+
+}
+
+/*
+void HelpTreeBase::FillLegacyL1Taus( const xAOD::TauRoIContainer* taus, const std::string& tauName, bool sortL1Taus ) {
+
+  this->ClearL1Taus(tauName);
+
+  xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  
+  thisL1Tau->FillLegacyL1Taus(taus,sortL1Taus);
+
+}*/
+
+void HelpTreeBase::ClearL1Taus(const std::string& tauName) {
+
+  xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  thisL1Tau->clear();
+
+}
+
+
+/*********************
+ **
+ *
+ **   L1 Muons
+ **
+ *********************/
+
+void HelpTreeBase::AddL1Muons( const std::string& muonName)
+{
+
+  if(m_debug) Info("AddL1Muons()", "Adding %s L1 muon", muonName.c_str());
+  m_l1Muons[muonName] = new xAH::L1MuonContainer(muonName, m_units, m_isMC);
+  m_l1Muons[muonName]->m_debug = m_debug;
+
+  xAH::L1MuonContainer* thisL1Muon = m_l1Muons[muonName];
+  thisL1Muon->setBranches(m_tree);
+
+}
+
+void HelpTreeBase::ClearL1Muons(const std::string& muonName){
+
+  xAH::L1MuonContainer* thisL1Muon = m_l1Muons[muonName];
+  thisL1Muon->clear();
+
+}
+
+
+/*********************
+ **
+ *
+ **   L1 Egammas
+ **
+ *********************/
+
+void HelpTreeBase::AddL1Egammas( const std::string& egammaName)
+{
+
+  if(m_debug) Info("AddL1Egammas()", "Adding %s L1 egamma", egammaName.c_str());
+  m_l1Egammas[egammaName] = new xAH::L1EMContainer(egammaName, m_units, m_isMC);
+  m_l1Egammas[egammaName]->m_debug = m_debug;
+
+  xAH::L1EMContainer* thisL1Egamma = m_l1Egammas[egammaName];
+  thisL1Egamma->setBranches(m_tree);
+
+}
+
+void HelpTreeBase::ClearL1Egammas(const std::string& egammaName){
+
+  xAH::L1EMContainer* thisL1Egamma = m_l1Egammas[egammaName];
+  thisL1Egamma->clear();
+
+}
+
+/********************
+*
+*   L1 MET
+*
+********************/
+void HelpTreeBase::AddL1Met( const std::string& detailStr, const std::string& metName)
+{
+  
+  if(m_debug) Info("AddL1Met()", "Adding MET variables %s", detailStr.c_str());
+  m_l1Met[metName] = new xAH::L1MetContainer(metName, detailStr, m_units);
+  
+  xAH::L1MetContainer* thisMet = m_l1Met[metName];
+  thisMet->setBranches(m_tree);
+}
+
+void HelpTreeBase::ClearL1Met( const std::string& metName ){
+  xAH::L1MetContainer* thisMet = m_l1Met[metName];
+  thisMet->clear();
+}
+
+
 
 /*********************
  *
@@ -1025,6 +1141,44 @@ void HelpTreeBase::ClearMET( const std::string& metName ) {
   thisMet->clear();
 
   this->ClearMETUser(metName);
+}
+
+
+/*********************
+ *
+ *     MET
+ *
+ ********************/
+void HelpTreeBase::AddTrigMET( const std::string& detailStr, const std::string& metName ) {
+
+  if(m_debug) Info("AddTrigMET()", "Adding Trig MET variables: %s", detailStr.c_str());
+
+  m_trigmet[metName] = new xAH::TrigMetContainer(metName, detailStr, m_units);
+
+  xAH::TrigMetContainer* thisMet = m_trigmet[metName];
+
+  thisMet->setBranches(m_tree);
+  this->AddTrigMETUser(detailStr, metName);
+}
+
+void HelpTreeBase::FillTrigMET( const xAOD::TrigMissingETContainer* met, const std::string& metName ) {
+
+  // Clear previous events
+  this->ClearTrigMET(metName);
+
+  xAH::TrigMetContainer* thisMet = m_trigmet[metName];
+
+  thisMet->FillTrigMET(met);
+
+  this->FillTrigMETUser(met, metName);
+}
+
+void HelpTreeBase::ClearTrigMET( const std::string& metName ) {
+  xAH::TrigMetContainer* thisMet = m_trigmet[metName];
+
+  thisMet->clear();
+
+  this->ClearTrigMETUser(metName);
 }
 
 
