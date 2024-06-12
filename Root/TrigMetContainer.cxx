@@ -63,7 +63,7 @@ void TrigMetContainer::FillTrigMET( const xAOD::TrigMissingETContainer* met) {
     m_metPx    = trig_met->ex() / m_units;
     m_metPy    = trig_met->ey() / m_units;
     m_metSumEt = trig_met->sumEt() / m_units;
-    m_metPhi   = TMath::ATan(trig_met->ey()/trig_met->ex());
+    m_metPhi   = TMath::ATan2(trig_met->ey(),trig_met->ex());
   }
 
   return;
