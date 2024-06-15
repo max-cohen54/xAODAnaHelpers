@@ -56,14 +56,14 @@ void TrigMetContainer::FillTrigMET( const xAOD::TrigMissingETContainer* met) {
 
 
   //if ( m_debug ) { Info("HelpTreeBase::FillTrigMET()", "Filling Trig MET info"); }
-
+  //std::cout<<"MET SIZE:::"<<met->size()<<std::endl;
   if (met->size()>0) {
     const xAOD::TrigMissingET* trig_met = met->front();
     m_met      = TMath::Sqrt(trig_met->ex()*trig_met->ex()+trig_met->ey()*trig_met->ey()) / m_units;
     m_metPx    = trig_met->ex() / m_units;
     m_metPy    = trig_met->ey() / m_units;
     m_metSumEt = trig_met->sumEt() / m_units;
-    m_metPhi   = TMath::ATan(trig_met->ey()/trig_met->ex());
+    m_metPhi   = TMath::ATan2(trig_met->ey(),trig_met->ex());
   }
 
   return;

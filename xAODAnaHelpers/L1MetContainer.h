@@ -66,7 +66,7 @@ namespace xAH {
             m_l1Met      = metMag / m_units;
             m_l1Met_Px   = ex / m_units;
             m_l1Met_Py   = ey / m_units;
-            m_l1Met_phi  = TMath::ATan(ey/ex);
+            m_l1Met_phi  = TMath::ATan2(ey,ex);
           }
         }  
       }
