@@ -36,22 +36,6 @@ namespace xAH {
 
     template <typename T>
     void FillL1Met(T*& met){
-      //for( auto met_itr : *met ) {
-      //  m_l1Met_Px->push_back ( static_cast<float>(met_itr->Ex()) / m_units );
-      //}
-      
-      //float totalEx = 0.0;
-      //float totalEy = 0.0;
-      //for (auto met_itr : * met ){
-      //  totalEx += met_itr->Ex();
-      //  totalEy += met_itr->Ey();
-      //}
- 
-      //m_l1Met     = TMath::Sqrt(totalEx*totalEx + totalEy*totalEy) / m_units;
-      //m_l1Met_Px  = ( static_cast<float>(totalEx) / m_units );
-      //m_l1Met_Py  = ( static_cast<float>(totalEy) / m_units );
-      //m_l1Met_phi = TMath::ATan(totalEy/totalEx);
-
       if (met->size()>0) {
         const auto& l1_met = met->front();
         float ex = l1_met->Ex();
