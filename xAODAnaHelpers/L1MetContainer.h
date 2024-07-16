@@ -46,7 +46,7 @@ namespace xAH {
           
           // FOR MC ONLY::: flip the sign of the MET components for half of the processors
           fpga_number = static_cast<int>(l1_met->fpgaNumber());
-          //sign = (fpga_number == 3) ? -1 : 1;
+          sign = (fpga_number == 3) ? -1 : 1;
           ex += sign * l1_met->Ex();
           ey += sign * l1_met->Ey();
           //std::cout << "FPGA Number: " << static_cast<int>(fpga_number) << std::endl;
