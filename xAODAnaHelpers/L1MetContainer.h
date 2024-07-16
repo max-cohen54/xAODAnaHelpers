@@ -36,10 +36,21 @@ namespace xAH {
 
     template <typename T>
     void FillL1Met(T*& met){
+      //std::cout << met->size() << std::endl;
       if (met->size()>0) {
-        const auto& l1_met = met->front();
-        float ex = l1_met->Ex();
-        float ey = l1_met->Ey();
+        float ex = 0;
+        float ey = 0;
+        int fpga_number;
+        int sign = 1;
+        for (const auto l1_met: *met) {
+          
+          // FOR MC ONLY::: flip the sign of the MET components for half of the processors
+          fpga_number = static_cast<int>(l1_met->fpgaNumber());
+          //sign = (fpga_number == 3) ? -1 : 1;
+          ex += sign * l1_met->Ex();
+          ey += sign * l1_met->Ey();
+          //std::cout << "FPGA Number: " << static_cast<int>(fpga_number) << std::endl;
+        }
 
         // Check for finite values
         if (TMath::Finite(ex) && TMath::Finite(ey)){
@@ -52,6 +63,7 @@ namespace xAH {
             m_l1Met_Py   = ey / m_units;
             //m_l1Met_phi  = TMath::ATan(ey/ex);
             m_l1Met_phi = TMath::ATan2(ey, ex);
+            //std::cout << "L1 MET phi: " << m_l1Met_phi << std::endl;
           }
         }  
       }
