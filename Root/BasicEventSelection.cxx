@@ -875,7 +875,7 @@ EL::StatusCode BasicEventSelection :: execute ()
 
     // GRL
     if ( m_applyGRLCut ) {
-      if ( !m_grl_handle->passRunLB( *eventInfo ) ) {
+      if ( m_grl_handle->passRunLB( *eventInfo ) ) { // EDITED HERE (removed '!')
         wk()->skipEvent();
         return EL::StatusCode::SUCCESS; // go to next event
       }
