@@ -54,6 +54,8 @@ namespace xAH {
 
       // clean
       std::vector<float> *m_Timing;
+      std::vector<float> *m_PFlow_jetClean_LooseBad;
+      std::vector<float> *m_PFlow_jetClean_TightBad;
       std::vector<float> *m_LArQuality;
       std::vector<float> *m_HECQuality;
       std::vector<float> *m_NegativeE;

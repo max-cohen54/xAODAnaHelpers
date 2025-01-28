@@ -521,6 +521,8 @@ namespace HelperClasses {
     bool m_cleanLLP;
     bool m_cleanTrig;
     bool m_timing;
+    bool m_pflow_jetClean_LooseBad;
+    bool m_pflow_jetClean_TightBad;
     bool m_energy;
     bool m_energyLight;
     bool m_scales;

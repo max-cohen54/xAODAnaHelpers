@@ -32,6 +32,8 @@ JetContainer::JetContainer(const std::string& name, const std::string& detailStr
   if(m_infoSwitch.m_clean || m_infoSwitch.m_cleanLight || m_infoSwitch.m_cleanLLP) {
     if(m_infoSwitch.m_clean){
       m_Timing                    =new std::vector<float>();
+      m_PFlow_jetClean_LooseBad   =new std::vector<float>();
+      m_PFlow_jetClean_TightBad   =new std::vector<float>();
       m_LArQuality                =new std::vector<float>();
       m_HECQuality                =new std::vector<float>();
       m_NegativeE                 =new std::vector<float>();
@@ -68,6 +70,13 @@ JetContainer::JetContainer(const std::string& name, const std::string& detailStr
   }
   if(m_infoSwitch.m_timing && !m_infoSwitch.m_clean){
     m_Timing = new std::vector<float>();
+  }
+
+  if(m_infoSwitch.m_pflow_jetClean_LooseBad){
+    m_PFlow_jetClean_LooseBad = new std::vector<float>();
+  }
+  if(m_infoSwitch.m_pflow_jetClean_TightBad){
+    m_PFlow_jetClean_TightBad = new std::vector<float>();
   }
 
   // energy
@@ -498,6 +507,8 @@ JetContainer::~JetContainer()
   if(m_infoSwitch.m_clean || m_infoSwitch.m_cleanLight || m_infoSwitch.m_cleanLLP) {
     if(m_infoSwitch.m_clean){
       delete m_Timing;
+      delete m_PFlow_jetClean_LooseBad;
+      delete m_PFlow_jetClean_TightBad;
       delete m_LArQuality;
       delete m_HECQuality;
       delete m_NegativeE;
@@ -534,6 +545,12 @@ JetContainer::~JetContainer()
   }
   if(m_infoSwitch.m_timing && !m_infoSwitch.m_clean){
     delete m_Timing;
+  }
+  if(m_infoSwitch.m_pflow_jetClean_LooseBad && !m_infoSwitch.m_clean){
+    delete m_PFlow_jetClean_LooseBad;
+  }
+  if(m_infoSwitch.m_pflow_jetClean_TightBad && !m_infoSwitch.m_clean){
+    delete m_PFlow_jetClean_TightBad;
   }
 
   // energy
@@ -954,6 +971,8 @@ void JetContainer::setTree(TTree *tree)
     {
       if(m_infoSwitch.m_clean){
         connectBranch<float>(tree, "Timing",                     &m_Timing);
+        connectBranch<float>(tree, "DFCommonJets_jetClean_LooseBad",    &m_PFlow_jetClean_LooseBad);
+        connectBranch<float>(tree, "DFCommonJets_jetClean_TightBad",    &m_PFlow_jetClean_TightBad);
         connectBranch<float>(tree, "LArQuality",                 &m_LArQuality);
         connectBranch<int>  (tree, "LArBadHVNCell",              &m_LArBadHVNCell);
         connectBranch<float>(tree, "LArQuality",                 &m_LArQuality);
@@ -991,6 +1010,13 @@ void JetContainer::setTree(TTree *tree)
     }
   if(m_infoSwitch.m_timing && !m_infoSwitch.m_clean){
     connectBranch<float>(tree, "Timing", &m_Timing);
+  }
+
+  if(m_infoSwitch.m_pflow_jetClean_LooseBad && !m_infoSwitch.m_clean){
+    connectBranch<float>(tree, "DFCommonJets_jetClean_LooseBad", &m_PFlow_jetClean_LooseBad);
+  }
+  if(m_infoSwitch.m_pflow_jetClean_TightBad && !m_infoSwitch.m_clean){
+    connectBranch<float>(tree, "DFCommonJets_jetClean_TightBad", &m_PFlow_jetClean_TightBad);
   }
 
   if(m_infoSwitch.m_energy || m_infoSwitch.m_energyLight )
@@ -1221,6 +1247,8 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
       if(m_debug) std::cout << "updating clean " << std::endl;
       if(m_infoSwitch.m_clean){
         jet.Timing                    =m_Timing                    ->at(idx);
+        jet.PFlow_jetClean_LooseBad    =m_PFlow_jetClean_LooseBad    ->at(idx);
+        jet.PFlow_jetClean_TightBad    =m_PFlow_jetClean_TightBad    ->at(idx);
         jet.LArQuality                =m_LArQuality                ->at(idx);
         jet.HECQuality                =m_HECQuality                ->at(idx);
         jet.NegativeE                 =m_NegativeE                 ->at(idx);
@@ -1258,6 +1286,12 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
   if(m_infoSwitch.m_timing && !m_infoSwitch.m_clean){
     jet.Timing = m_Timing->at(idx);
     }
+  if(m_infoSwitch.m_pflow_jetClean_LooseBad && !m_infoSwitch.m_clean){
+    jet.PFlow_jetClean_LooseBad = m_PFlow_jetClean_LooseBad->at(idx);
+  }
+  if(m_infoSwitch.m_pflow_jetClean_TightBad && !m_infoSwitch.m_clean){
+    jet.PFlow_jetClean_TightBad = m_PFlow_jetClean_TightBad->at(idx);
+  }
 
   if(m_infoSwitch.m_energy || m_infoSwitch.m_energyLight)
     {
@@ -1621,6 +1655,8 @@ void JetContainer::setBranches(TTree *tree)
   if( m_infoSwitch.m_clean || m_infoSwitch.m_cleanLight || m_infoSwitch.m_cleanLLP) {
     if(m_infoSwitch.m_clean){
       setBranch<float>(tree,"Timing",                        m_Timing               );
+      setBranch<float>(tree,"DFCommonJets_jetClean_LooseBad", m_PFlow_jetClean_LooseBad);
+      setBranch<float>(tree,"DFCommonJets_jetClean_TightBad", m_PFlow_jetClean_TightBad);
       setBranch<float>(tree,"LArQuality",                    m_LArQuality         );
       setBranch<float>(tree,"HECQuality",                    m_HECQuality               );
       setBranch<float>(tree,"NegativeE",                     m_NegativeE               );
@@ -1657,6 +1693,12 @@ void JetContainer::setBranches(TTree *tree)
   }
   if(m_infoSwitch.m_timing && !m_infoSwitch.m_clean){
     setBranch<float>(tree,"Timing",m_Timing);
+  }
+  if(m_infoSwitch.m_pflow_jetClean_LooseBad && !m_infoSwitch.m_clean){
+    setBranch<float>(tree,"PFlow_jetClean_LooseBad",m_PFlow_jetClean_LooseBad);
+  }
+  if(m_infoSwitch.m_pflow_jetClean_TightBad && !m_infoSwitch.m_clean){
+    setBranch<float>(tree,"PFlow_jetClean_TightBad",m_PFlow_jetClean_TightBad);
   }
 
 
@@ -2070,6 +2112,8 @@ void JetContainer::clear()
   if( m_infoSwitch.m_clean || m_infoSwitch.m_cleanLight || m_infoSwitch.m_cleanLLP) {
     if(m_infoSwitch.m_clean){
       m_Timing                    ->clear();
+      m_PFlow_jetClean_LooseBad    ->clear();
+      m_PFlow_jetClean_TightBad    ->clear();
       m_LArQuality                ->clear();
       m_HECQuality                ->clear();
       m_NegativeE                 ->clear();
@@ -2108,6 +2152,12 @@ void JetContainer::clear()
     m_Timing->clear();
   }
 
+  if(m_infoSwitch.m_pflow_jetClean_LooseBad && !m_infoSwitch.m_clean){
+    m_PFlow_jetClean_LooseBad->clear();
+  }
+  if(m_infoSwitch.m_pflow_jetClean_TightBad && !m_infoSwitch.m_clean){
+    m_PFlow_jetClean_TightBad->clear();
+  }
 
   // energy
   if ( m_infoSwitch.m_energy || m_infoSwitch.m_energyLight ) {
@@ -2544,6 +2594,12 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
       static SG::AuxElement::ConstAccessor<float> jetTime ("Timing");
       safeFill<float, float, xAOD::Jet>(jet, jetTime, m_Timing, -999);
 
+      static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_LooseBad ("PFlow_jetClean_LooseBad");
+      safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_LooseBad, m_PFlow_jetClean_LooseBad, -999);
+
+      static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_TightBad ("PFlow_jetClean_TightBad");
+      safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_TightBad, m_PFlow_jetClean_TightBad, -999);
+
       static SG::AuxElement::ConstAccessor<float> LArQuality ("LArQuality");
       safeFill<float, float, xAOD::Jet>(jet, LArQuality, m_LArQuality, -999);
 
@@ -2620,6 +2676,16 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
   if(m_infoSwitch.m_timing && !m_infoSwitch.m_clean){
     static SG::AuxElement::ConstAccessor<float> jetTime ("Timing");
     safeFill<float, float, xAOD::Jet>(jet, jetTime, m_Timing, -999);
+  }
+
+  if(m_infoSwitch.m_pflow_jetClean_LooseBad && !m_infoSwitch.m_clean){
+    static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_LooseBad ("PFlow_jetClean_LooseBad");
+    safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_LooseBad, m_PFlow_jetClean_LooseBad, -999);
+  }
+
+  if(m_infoSwitch.m_pflow_jetClean_TightBad && !m_infoSwitch.m_clean){
+    static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_TightBad ("PFlow_jetClean_TightBad");
+    safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_TightBad, m_PFlow_jetClean_TightBad, -999);
   }
 
 
