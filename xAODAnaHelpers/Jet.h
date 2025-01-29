@@ -30,6 +30,8 @@ namespace xAH {
       
       // clean
       float Timing;
+      float PFlow_jetClean_LooseBad;
+      float PFlow_jetClean_TightBad;
       float LArQuality;
       float HECQuality;
       float NegativeE;

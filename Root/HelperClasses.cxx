@@ -306,6 +306,8 @@ namespace HelperClasses{
     m_cleanTrig     = has_exact("cleanTrig");
     m_cleanLLP      = has_exact("cleanLLP");
     m_timing        = has_exact("timing");
+    m_pflow_jetClean_LooseBad = has_exact("DFCommonJets_jetClean_LooseBad");
+    m_pflow_jetClean_TightBad = has_exact("DFCommonJets_jetClean_TightBad");
     m_energy        = has_exact("energy");
     m_energyLight   = has_exact("energyLight");
     m_scales        = has_exact("scales");
