@@ -1655,8 +1655,8 @@ void JetContainer::setBranches(TTree *tree)
   if( m_infoSwitch.m_clean || m_infoSwitch.m_cleanLight || m_infoSwitch.m_cleanLLP) {
     if(m_infoSwitch.m_clean){
       setBranch<float>(tree,"Timing",                        m_Timing               );
-      setBranch<float>(tree,"DFCommonJets_jetClean_LooseBad", m_PFlow_jetClean_LooseBad);
-      setBranch<float>(tree,"DFCommonJets_jetClean_TightBad", m_PFlow_jetClean_TightBad);
+      setBranch<float>(tree,"PFlow_jetClean_LooseBad", m_PFlow_jetClean_LooseBad);
+      setBranch<float>(tree,"PFlow_jetClean_TightBad", m_PFlow_jetClean_TightBad);
       setBranch<float>(tree,"LArQuality",                    m_LArQuality         );
       setBranch<float>(tree,"HECQuality",                    m_HECQuality               );
       setBranch<float>(tree,"NegativeE",                     m_NegativeE               );
@@ -2594,11 +2594,12 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
       static SG::AuxElement::ConstAccessor<float> jetTime ("Timing");
       safeFill<float, float, xAOD::Jet>(jet, jetTime, m_Timing, -999);
 
-      static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_LooseBad ("PFlow_jetClean_LooseBad");
-      safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_LooseBad, m_PFlow_jetClean_LooseBad, -999);
+      static SG::AuxElement::ConstAccessor<char> PFlow_jetClean_LooseBad ("DFCommonJets_jetClean_LooseBad");
+      safeFill<char, float, xAOD::Jet>(jet, PFlow_jetClean_LooseBad, m_PFlow_jetClean_LooseBad, static_cast<float>(-999));
 
-      static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_TightBad ("PFlow_jetClean_TightBad");
-      safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_TightBad, m_PFlow_jetClean_TightBad, -999);
+
+      static SG::AuxElement::ConstAccessor<char> PFlow_jetClean_TightBad ("DFCommonJets_jetClean_TightBad");
+      safeFill<char, float, xAOD::Jet>(jet, PFlow_jetClean_TightBad, m_PFlow_jetClean_TightBad, static_cast<float>(-999));
 
       static SG::AuxElement::ConstAccessor<float> LArQuality ("LArQuality");
       safeFill<float, float, xAOD::Jet>(jet, LArQuality, m_LArQuality, -999);
@@ -2679,13 +2680,13 @@ void JetContainer::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex*
   }
 
   if(m_infoSwitch.m_pflow_jetClean_LooseBad && !m_infoSwitch.m_clean){
-    static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_LooseBad ("PFlow_jetClean_LooseBad");
-    safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_LooseBad, m_PFlow_jetClean_LooseBad, -999);
+    static SG::AuxElement::ConstAccessor<char> PFlow_jetClean_LooseBad ("DFCommonJets_jetClean_LooseBad");
+    safeFill<char, float, xAOD::Jet>(jet, PFlow_jetClean_LooseBad, m_PFlow_jetClean_LooseBad, static_cast<float>(-999));
   }
 
   if(m_infoSwitch.m_pflow_jetClean_TightBad && !m_infoSwitch.m_clean){
-    static SG::AuxElement::ConstAccessor<float> PFlow_jetClean_TightBad ("PFlow_jetClean_TightBad");
-    safeFill<float, float, xAOD::Jet>(jet, PFlow_jetClean_TightBad, m_PFlow_jetClean_TightBad, -999);
+    static SG::AuxElement::ConstAccessor<char> PFlow_jetClean_TightBad ("DFCommonJets_jetClean_TightBad");
+    safeFill<char, float, xAOD::Jet>(jet, PFlow_jetClean_TightBad, m_PFlow_jetClean_TightBad, static_cast<float>(-999));
   }
 
 
