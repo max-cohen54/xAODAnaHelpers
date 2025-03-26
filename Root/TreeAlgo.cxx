@@ -77,6 +77,20 @@ EL::StatusCode TreeAlgo :: initialize ()
   }
 
 
+  std::istringstream ss_TrigMET_containers(m_TrigMETContainerName);
+  while ( std::getline(ss_TrigMET_containers, token, ' ') ){
+    m_TrigMETContainers.push_back(token);
+  }
+  std::istringstream ss_TrigMET_names(m_TrigMETBranchName);
+  while ( std::getline(ss_TrigMET_names, token, ' ') ){
+    m_TrigMETBranches.push_back(token);
+  }
+  if( !m_TrigMETContainerName.empty() && m_TrigMETContainers.size()!=m_TrigMETBranches.size()){
+    ANA_MSG_ERROR( "The number of TrigMET containers must be equal to the number of TrigMET name branches. Exiting");
+    return EL::StatusCode::FAILURE;
+  }
+
+
 
   std::istringstream ss_mu_containers(m_muContainerName);
   while ( std::getline(ss_mu_containers, token, ' ') ){
@@ -450,7 +464,14 @@ EL::StatusCode TreeAlgo :: execute ()
       for(unsigned int ll=0; ll<m_photonContainers.size();++ll){
         helpTree->AddPhotons       (m_photonDetailStr, m_photonBranches.at(ll));
       }
-    }  
+    }
+
+    //if (!m_TrigMETContainerName.empty() )           { helpTree->AddTrigMET(m_TrigMETDetailStr);   
+    if (!m_TrigMETContainerName.empty() )           {
+      for(unsigned int ll=0; ll<m_TrigMETContainers.size();++ll){
+        helpTree->AddTrigMET(m_TrigMETDetailStr, m_TrigMETBranches.at(ll));
+      }
+    }
 
 
     if (!m_jetContainerName.empty() )           {
@@ -512,7 +533,6 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_tauContainerName.empty() )           { helpTree->AddTaus(m_tauDetailStr);                               }
     if (!m_METContainerName.empty() )           { helpTree->AddMET(m_METDetailStr);                                }
     if (!m_METReferenceContainerName.empty() )  { helpTree->AddMET(m_METReferenceDetailStr, "referenceMet");       }
-    if (!m_TrigMETContainerName.empty() )           { helpTree->AddTrigMET(m_TrigMETDetailStr);                                }
     if (!m_TrigMETReferenceContainerName.empty() )  { helpTree->AddTrigMET(m_TrigMETReferenceDetailStr, "referenceMet");       }
     if (!m_truthParticlesContainerName.empty()) {
       for(unsigned int ll=0; ll<m_truthParticlesContainers.size();++ll){
@@ -649,6 +669,36 @@ EL::StatusCode TreeAlgo :: execute ()
     }
     //std::cout << "ELECTRON 3 END!!" << std::endl;
     // -------------------------------------------------------------------------------------
+
+
+    // if ( !m_TrigMETContainerName.empty() ) {
+    //   if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) ) continue;
+
+    //   const xAOD::TrigMissingETContainer* inTrigMETCont(nullptr);
+    //   ANA_CHECK( HelperFunctions::retrieve(inTrigMETCont, m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) );
+    //   helpTree->FillTrigMET( inTrigMETCont );
+    // }
+
+    if ( !m_TrigMETContainerName.empty() ) {
+      bool reject = false;
+      for(unsigned int ll=0; ll<m_TrigMETContainers.size();++ll){
+        const xAOD::TrigMissingETContainer* inTrigMETCont(nullptr);
+        if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETContainers.at(ll)+metSuffix, m_event, m_store, msg()) ) {
+          ANA_MSG_DEBUG( "The TrigMET container " + m_TrigMETContainers.at(ll)+metSuffix + " is not available. Skipping all remaining TrigMET collections");
+          reject = true;
+          break;
+        }
+        ANA_CHECK( HelperFunctions::retrieve(inTrigMETCont, m_TrigMETContainers.at(ll)+metSuffix, m_event, m_store, msg()) );
+        helpTree->FillTrigMET( inTrigMETCont, m_TrigMETBranches.at(ll) );
+      }
+
+      if ( reject ) {
+        ANA_MSG_DEBUG( "There was a TrigMET container problem - not writing the event");
+        continue;
+      }
+    }
+
+
     if ( !m_jetContainerName.empty() ) {
       bool reject = false;
       for ( unsigned int ll = 0; ll < m_jetContainers.size(); ++ll ) { // Systs for all jet containers
@@ -938,13 +988,7 @@ EL::StatusCode TreeAlgo :: execute ()
       helpTree->FillMET( inMETCont, "referenceMet" );
     }
 
-    if ( !m_TrigMETContainerName.empty() ) {
-      if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) ) continue;
-
-      const xAOD::TrigMissingETContainer* inTrigMETCont(nullptr);
-      ANA_CHECK( HelperFunctions::retrieve(inTrigMETCont, m_TrigMETContainerName + metSuffix, m_event, m_store, msg()) );
-      helpTree->FillTrigMET( inTrigMETCont );
-    }
+    
 
     if ( !m_TrigMETReferenceContainerName.empty() ) {
       if ( !HelperFunctions::isAvailable<xAOD::TrigMissingETContainer>(m_TrigMETReferenceContainerName, m_event, m_store, msg()) ) continue;
