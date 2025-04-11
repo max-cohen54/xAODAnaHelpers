@@ -24,16 +24,23 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigger/JetRoIContainer.h"
+//#include "xAODTrigger/TauRoIContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "xAODAnaHelpers/HelperClasses.h"
 #include "xAODAnaHelpers/EventInfo.h"
 #include "xAODAnaHelpers/MetContainer.h"
+#include "xAODAnaHelpers/TrigMetContainer.h"
 #include "xAODAnaHelpers/JetContainer.h"
 #include "xAODAnaHelpers/L1JetContainer.h"
+#include "xAODAnaHelpers/L1TauContainer.h"
+#include "xAODAnaHelpers/L1MuonContainer.h"
+#include "xAODAnaHelpers/L1EMContainer.h"
+#include "xAODAnaHelpers/L1MetContainer.h"
 #include "xAODAnaHelpers/VertexContainer.h"
 #include "xAODAnaHelpers/ElectronContainer.h"
 #include "xAODAnaHelpers/PhotonContainer.h"
@@ -71,19 +78,23 @@ public:
   HelpTreeBase(TTree* tree, TFile* file, xAOD::TEvent *event = nullptr, xAOD::TStore* store = nullptr, const float units = 1e3, bool debug = false, std::string nominalTreeName = "nominal" );
   virtual ~HelpTreeBase();
 
-  void AddEvent         (const std::string& detailStr = "");
-  void AddTrigger       (const std::string& detailStr = "");
-  void AddJetTrigger    (const std::string& detailStr = "");
-  void AddMuons         (const std::string& detailStr = "", const std::string& muonName = "muon");
-  void AddElectrons     (const std::string& detailStr = "", const std::string& elecName = "el");
-  void AddPhotons       (const std::string& detailStr = "", const std::string& photonName = "ph");
-  void AddClusters      (const std::string& detailStr = "", const std::string& clusterName = "cl");
-  void AddJets          (const std::string& detailStr = "", const std::string& jetName = "jet");
-  void AddL1Jets        (const std::string& jetName   = "");
-  void AddTruthParts    (const std::string& detailStr = "", const std::string& truthName = "xAH_truth");
-  void AddTrackParts    (const std::string& detailStr = "", const std::string& trackName = "trk");
-  void AddVertices      (const std::string& detailStr = "", const std::string& vertexName = "vertex"); // options for detailStr: "all" or "primary"
-  void AddTruthVertices (const std::string& detailStr = "", const std::string& vertexName = "truth_vertex"); // options for detailStr: "all" or "primary"
+  void AddEvent         (const std::string& detailStr   = "");
+  void AddTrigger       (const std::string& detailStr   = "");
+  void AddJetTrigger    (const std::string& detailStr   = "");
+  void AddMuons         (const std::string& detailStr   = "", const std::string& muonName = "muon");
+  void AddElectrons     (const std::string& detailStr   = "", const std::string& elecName = "el");
+  void AddPhotons       (const std::string& detailStr   = "", const std::string& photonName = "ph");
+  void AddClusters      (const std::string& detailStr   = "", const std::string& clusterName = "cl");
+  void AddJets          (const std::string& detailStr   = "", const std::string& jetName = "jet");
+  void AddL1Jets        (const std::string& jetName     = "");
+  void AddL1Taus        (const std::string& tauName     = "");
+  void AddL1Muons       (const std::string& muonName    = "");
+  void AddL1Egammas     (const std::string& egammaName  = "");
+  void AddL1Met         (const std::string& detailStr   = "", const std::string& metName     = "");
+  void AddTruthParts    (const std::string& detailStr   = "", const std::string& truthName = "xAH_truth");
+  void AddTrackParts    (const std::string& detailStr   = "", const std::string& trackName = "trk");
+  void AddVertices      (const std::string& detailStr   = "", const std::string& vertexName = "vertex"); // options for detailStr: "all" or "primary"
+  void AddTruthVertices (const std::string& detailStr   = "", const std::string& vertexName = "truth_vertex"); // options for detailStr: "all" or "primary"
 
   /**
    *  @brief  Declare a new collection of fatjets to be written to the output tree.
@@ -99,6 +110,7 @@ public:
 
   void AddTaus        (const std::string& detailStr = "", const std::string& tauName = "tau");
   void AddMET         (const std::string& detailStr = "", const std::string& metName = "met");
+  void AddTrigMET     (const std::string& detailStr = "", const std::string& metName = "trigmet");
 
   /**
    *  @brief  Helper function to lookup each fatjet container name/suffix combo in the internal map
@@ -144,6 +156,7 @@ public:
   void FillJets( const xAOD::JetContainer* jets, int pvLocation = -1, const std::string& jetName = "jet" );
   void FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string& jetName = "jet" );
   void FillLegacyL1Jets( const xAOD::JetRoIContainer* jets, const std::string& jetName = "L1Jet", bool sortL1Jets = false );
+  //void FillLegacyL1Taus( const xAOD::TauRoIContainer* taus, const std::string& tauName = "L1Tau", bool sortL1Taus = false );
 
   template <typename T>
   void FillPhase1L1Jets(T*& jets, const std::string& jetName = "L1Jet", bool sortL1Jets = false){
@@ -154,6 +167,56 @@ public:
   
     thisL1Jet->FillPhase1L1Jets(jets,sortL1Jets);
   }
+
+  template <typename T>
+  void FillFexL1Taus(T*& taus, const std::string& tauName = "L1Tau", bool sortL1Taus = false){
+    
+    this->ClearL1Taus(tauName);
+
+    xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  
+    thisL1Tau->FillFexL1Taus(taus,sortL1Taus);
+  }
+
+  template <typename T>
+  void FillEmL1Taus(T*& taus, const std::string& tauName = "L1Tau", bool sortL1Taus = false){
+    
+    this->ClearL1Taus(tauName);
+
+    xAH::L1TauContainer* thisL1Tau = m_l1Taus[tauName];
+  
+    thisL1Tau->FillEmL1Taus(taus,sortL1Taus);
+  }
+
+  template <typename T>
+  void FillL1Muons(T*& muons, const std::string& muonName = "L1Muon", bool sortL1Muons = false){
+
+    this->ClearL1Muons(muonName);
+    
+    xAH::L1MuonContainer* thisL1Muon = m_l1Muons[muonName];
+
+    thisL1Muon->FillL1Muons(muons, sortL1Muons);
+  }
+
+  template <typename T>
+  void FillL1Egammas(T*& egammas, const std::string& egammaName = "L1Egamma", bool sortL1Egammas = false){
+
+    this->ClearL1Egammas(egammaName);
+
+    xAH::L1EMContainer* thisL1Egamma = m_l1Egammas[egammaName];
+
+    thisL1Egamma->FillL1Egammas(egammas, sortL1Egammas);
+  }
+
+  template <typename T>
+  void FillL1Met(T*& met, const std::string& metName = "L1Met"){
+    this->ClearL1Met(metName);
+
+    xAH::L1MetContainer* thisMet = m_l1Met[metName];
+
+    thisMet->FillL1Met(met);
+  }
+
 
   void FillTruth( const xAOD::TruthParticleContainer* truth, const std::string& truthName = "xAH_truth" );
   void FillTruth( const xAOD::TruthParticle* truthPart, const std::string& truthName );
@@ -182,6 +245,7 @@ public:
   void FillTaus( const xAOD::TauJetContainer* taus, const std::string& tauName = "tau" );
   void FillTau ( const xAOD::TauJet* tau,           const std::string& tauName = "tau" );
   void FillMET( const xAOD::MissingETContainer* met, const std::string& metName = "met" );
+  void FillTrigMET( const xAOD::TrigMissingETContainer* met, const std::string& metName = "trigmet" );
 
   void Fill();
   void ClearEvent();
@@ -193,12 +257,17 @@ public:
   void ClearClusters      (const std::string& clusterName = "cl");
   void ClearJets          (const std::string& jetName = "jet");
   void ClearL1Jets        (const std::string& jetName = "L1Jet");
+  void ClearL1Taus        (const std::string& tauName = "L1Tau");
+  void ClearL1Muons       (const std::string& muonName = "L1Muon");
+  void ClearL1Egammas     (const std::string& egammaName = "L1Egamma");
+  void ClearL1Met         (const std::string& metName = "L1Met");
   void ClearTruth         (const std::string& truthName);
   void ClearTracks	  (const std::string& trackName);
   void ClearFatJets       (const std::string& fatjetName, const std::string& suffix="");
   void ClearTruthFatJets  (const std::string& truthFatJetName = "truth_fatjet");
   void ClearTaus          (const std::string& tauName = "tau" );
   void ClearMET           (const std::string& metName = "met");
+  void ClearTrigMET           (const std::string& metName = "trigmet");
   void ClearVertices      (const std::string& vertexName = "vertex");
   void ClearTruthVertices (const std::string& vertexName = "truth_vertex");
 
@@ -280,6 +349,10 @@ public:
     if(m_debug) Info("AddMETUser","Empty function called from HelpTreeBase %s for %s",detailStr.c_str(), metName.c_str());
     return;
   };
+  virtual void AddTrigMETUser(const std::string& detailStr = "", const std::string& metName = "trigmet")       {
+    if(m_debug) Info("AddTrigMETUser","Empty function called from HelpTreeBase %s for %s",detailStr.c_str(), metName.c_str());
+    return;
+  };
 
   virtual void ClearEventUser       ()     { return; };
   virtual void ClearTriggerUser     ()   { return; };
@@ -294,6 +367,7 @@ public:
   virtual void ClearTruthFatJetsUser(const std::string& /*truthFatJetName = "truth_fatjet"*/)   { return; };
   virtual void ClearTausUser        (const std::string& /*tauName = "tau"*/) 	    { return; };
   virtual void ClearMETUser         (const std::string& /*metName = "met"*/)       { return; };
+  virtual void ClearTrigMETUser         (const std::string& /*metName = "met"*/)       { return; };
 
   virtual void FillEventUser    ( const xAOD::EventInfo*  )        { return; };
   virtual void FillMuonsUser    ( const xAOD::Muon*,        const std::string& /*muonName = "muon"*/, const xAOD::Vertex* ) { return; };
@@ -315,6 +389,7 @@ public:
   virtual void FillTruthFatJetsUser( const xAOD::Jet* /*jet*/, int /*pvLocation = 0*/, const std::string& /*fatjetName = "truth_fatjet"*/   )            { return; };
   virtual void FillTausUser( const xAOD::TauJet*,           const std::string& /*tauName = "tau"*/  )            { return; };
   virtual void FillMETUser( const xAOD::MissingETContainer*, const std::string& /*metName = "met"*/ ) { return; };
+  virtual void FillTrigMETUser( const xAOD::TrigMissingETContainer*, const std::string& /*metName = "met"*/ ) { return; };
   virtual void FillTriggerUser( const xAOD::EventInfo*  )      { return; };
   virtual void FillJetTriggerUser()                            { return; };
 
@@ -372,6 +447,26 @@ protected:
   std::map<std::string, xAH::L1JetContainer*> m_l1Jets;
 
   //
+  // L1 Taus
+  //
+  std::map<std::string, xAH::L1TauContainer*> m_l1Taus;
+
+  //
+  // L1 Met
+  //
+  std::map<std::string, xAH::L1MetContainer*> m_l1Met;
+
+  //
+  // L1 Muons
+  //
+  std::map<std::string, xAH::L1MuonContainer*> m_l1Muons;
+
+  //
+  // L1 Egammas
+  //
+  std::map<std::string, xAH::L1EMContainer*> m_l1Egammas;
+  
+  //
   // Truth
   //
   std::map<std::string, xAH::TruthContainer*> m_truth;
@@ -425,6 +520,7 @@ protected:
   // met
   //
   std::map<std::string, xAH::MetContainer* > m_met;
+  std::map<std::string, xAH::TrigMetContainer* > m_trigmet;
 
   //
   // vertices

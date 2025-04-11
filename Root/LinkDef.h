@@ -38,6 +38,7 @@
 #include <xAODAnaHelpers/PhotonHistsAlgo.h>
 #include <xAODAnaHelpers/ElectronHistsAlgo.h>
 #include <xAODAnaHelpers/MetHistsAlgo.h>
+#include <xAODAnaHelpers/TrigMetHistsAlgo.h>
 #include <xAODAnaHelpers/TrackHistsAlgo.h>
 #include <xAODAnaHelpers/ClusterHistsAlgo.h>
 
@@ -100,6 +101,7 @@
 #pragma link C++ class PhotonHistsAlgo+;
 #pragma link C++ class ElectronHistsAlgo+;
 #pragma link C++ class MetHistsAlgo+;
+#pragma link C++ class TrigMetHistsAlgo+;
 #pragma link C++ class TrackHistsAlgo+;
 #pragma link C++ class ClusterHistsAlgo+;
 

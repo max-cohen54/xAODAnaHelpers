@@ -129,6 +129,7 @@ namespace xAH {
 
         /** If the xAOD has a different EventInfo container name, set it here */
         std::string m_eventInfoContainerName = "EventInfo";
+        //std::string m_eventInfoContainerName = "HLT_TCEventInfo_jet";
 
         /** If the xAOD has a different PrimaryVertex container name, set it here */
         std::string m_vertexContainerName = "PrimaryVertices";
