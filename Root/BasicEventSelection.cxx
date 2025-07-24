@@ -1012,6 +1012,8 @@ EL::StatusCode BasicEventSelection :: execute ()
     //
     if ( m_storeTrigDecisions ) {
 
+      auto triggerChainGroup = m_trigDecTool_handle->getChainGroup(".*");
+
       std::vector<std::string>  passedTriggers;
       std::vector<std::string>  disabledTriggers;
       std::vector<float>        triggerPrescales;
