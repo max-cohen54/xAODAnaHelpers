@@ -99,6 +99,9 @@ namespace xAH {
     std::vector<float> m_caloCluster_phi;
     std::vector<float> m_caloCluster_e;
 
+    // anomaly detection score
+    std::vector<float> m_adScore;
+
   };
 
   template <typename T_BR> void EventInfo::connectBranch(TTree *tree, std::string name, T_BR *variable)

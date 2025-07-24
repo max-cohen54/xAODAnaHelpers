@@ -4,6 +4,7 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODEventShape/EventShape.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 
 using namespace xAH;
@@ -119,6 +120,11 @@ void EventInfo::setTree(TTree *tree)
     HelperFunctions::connectBranch<float>("caloCluster", tree, "e",   &m_caloCluster_e_addr   );
   }
 
+  if ( m_infoSwitch.m_anomDet ) {
+    std::vector<float>* m_adScore_addr = &m_adScore;
+    HelperFunctions::connectBranch<float>("anomDet", tree, "adScore", &m_adScore_addr );
+  }
+
   if ( m_infoSwitch.m_beamspotweight ) {
     connectBranch<float>(tree, "beamSpotWeight",                    &m_beamspotweight);
   }
@@ -217,6 +223,10 @@ void EventInfo::setBranches(TTree *tree)
     tree->Branch("caloCluster_e",   &m_caloCluster_e);
   }
 
+  if ( m_infoSwitch.m_anomDet ) {
+    tree->Branch("anomDet_adScore", &m_adScore);
+  }
+
   if ( m_infoSwitch.m_beamspotweight ) {
     tree->Branch("beamSpotWeight",   &m_beamspotweight);
   }
@@ -274,6 +284,10 @@ void EventInfo::clear()
     m_caloCluster_eta.clear();
     m_caloCluster_phi.clear();
     m_caloCluster_e.clear();
+  }
+
+  if ( m_infoSwitch.m_anomDet ) {
+    m_adScore.clear();
   }
 
   if ( m_infoSwitch.m_beamspotweight ) {
@@ -431,6 +445,19 @@ void EventInfo::FillEvent( const xAOD::EventInfo* eventInfo, xAOD::TEvent* event
       m_caloCluster_eta.push_back( clus->eta( xAOD::CaloCluster::State::UNCALIBRATED ) );
       m_caloCluster_phi.push_back( clus->phi( xAOD::CaloCluster::State::UNCALIBRATED ) );
       m_caloCluster_e.  push_back( clus->e  ( xAOD::CaloCluster::State::UNCALIBRATED ) / m_units );
+    }
+  }
+
+  if ( m_infoSwitch.m_anomDet && event ) {
+    const xAOD::TrigCompositeContainer* adCont = nullptr;
+    HelperFunctions::retrieve( adCont, "HLT_AnomDet_ComboHypo", event, 0 );
+    if ( adCont ) {
+      static SG::AuxElement::ConstAccessor< std::vector<float> > acc_adScore("adScore");
+      for ( const auto comp : *adCont ) {
+        if ( acc_adScore.isAvailable( *comp ) ) {
+          for ( const auto& val : acc_adScore( *comp ) ) m_adScore.push_back( val );
+        }
+      }
     }
   }
 
