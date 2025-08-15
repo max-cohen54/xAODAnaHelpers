@@ -57,6 +57,11 @@
 #include <xAODAnaHelpers/MessagePrinterAlgo.h>
 #include <xAODAnaHelpers/MuonInFatJetCorrector.h>
 
+/* Custom Decorators */
+#include <xAODAnaHelpers/ElectronDecorator.h>
+#include <xAODAnaHelpers/PhotonDecorator.h>
+#include <xAODAnaHelpers/MuonDecorator.h>
+
 #ifdef __CINT__
 
 #pragma link off all globals;
@@ -116,5 +121,9 @@
 #pragma link C++ class Writer+;
 #pragma link C++ class MessagePrinterAlgo+;
 #pragma link C++ class MuonInFatJetCorrector+;
+
+#pragma link C++ class ElectronDecorator+;
+#pragma link C++ class PhotonDecorator+;
+#pragma link C++ class MuonDecorator+;
 
 #endif
