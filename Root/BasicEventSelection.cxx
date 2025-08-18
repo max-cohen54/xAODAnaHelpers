@@ -833,6 +833,25 @@ EL::StatusCode BasicEventSelection :: execute ()
 
   }
 
+  //---------------------------------------------------------------------------
+  // Apply lumiblock range cut if requested
+  //---------------------------------------------------------------------------
+  if ( m_lumiBlockMin > -1 ) {
+    std::cout << "starting lumi block cut" << std::endl;
+    if ( eventInfo->lumiBlock() < m_lumiBlockMin ) {
+      std::cout << "lumi block too low" << std::endl;
+      wk()->skipEvent();
+      return EL::StatusCode::SUCCESS;
+    }
+  }
+  if ( m_lumiBlockMax > -1 ) {
+    if ( eventInfo->lumiBlock() > m_lumiBlockMax ) {
+      std::cout << "lumi block too high" << std::endl;
+      wk()->skipEvent();
+      return EL::StatusCode::SUCCESS;
+    }
+  }
+
   //------------------------------------------------------------------------------------------
   // Update Pile-Up Reweighting
   //------------------------------------------------------------------------------------------

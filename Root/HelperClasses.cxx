@@ -152,9 +152,10 @@ namespace HelperClasses{
     m_shapeLC       = has_exact("shapeLC");
     m_truth         = has_exact("truth");
     m_caloClus      = has_exact("caloClusters");
-    m_weightsSys    = has_exact("weightsSys");
-    m_beamspotweight= has_exact("beamspotweight");
-  }
+  m_weightsSys    = has_exact("weightsSys");
+  m_beamspotweight= has_exact("beamspotweight");
+  m_anomDet       = has_exact("anomDet");
+}
 
   void TriggerInfoSwitch::initialize(){
     m_basic             = has_exact("basic");
