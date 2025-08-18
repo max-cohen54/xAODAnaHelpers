@@ -142,6 +142,11 @@ class BasicEventSelection : public xAH::Algorithm
     /// @brief Calculate distance to nearest empty and unpaired BCIDs
     bool m_calcBCIDInfo = false;
 
+    /// @brief Minimum lumiblock number to accept (inclusive). Set to -1 to disable.
+    int m_lumiBlockMin = -1;
+    /// @brief Maximum lumiblock number to accept (inclusive). Set to -1 to disable.
+    int m_lumiBlockMax = -1;
+
     // Primary Vertex
     /// @brief Enable to apply a primary vertex cut
     bool m_applyPrimaryVertexCut = false;

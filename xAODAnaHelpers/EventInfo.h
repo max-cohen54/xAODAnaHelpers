@@ -100,7 +100,7 @@ namespace xAH {
     std::vector<float> m_caloCluster_e;
 
     // anomaly detection score
-    std::vector<float> m_adScore;
+    std::vector<float> m_anomDet_adScore;
 
   };
 

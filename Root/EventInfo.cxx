@@ -120,10 +120,10 @@ void EventInfo::setTree(TTree *tree)
     HelperFunctions::connectBranch<float>("caloCluster", tree, "e",   &m_caloCluster_e_addr   );
   }
 
-  if ( m_infoSwitch.m_anomDet ) {
-    std::vector<float>* m_adScore_addr = &m_adScore;
-    HelperFunctions::connectBranch<float>("anomDet", tree, "adScore", &m_adScore_addr );
-  }
+  // if ( m_infoSwitch.m_anomDet ) {
+  //   std::vector<float>* m_anomDet_adScore_addr = &m_anomDet_adScore;
+  //   HelperFunctions::connectBranch<float>("anomDet", tree, "adScore", &m_anomDet_adScore_addr );
+  // }
 
   if ( m_infoSwitch.m_beamspotweight ) {
     connectBranch<float>(tree, "beamSpotWeight",                    &m_beamspotweight);
@@ -224,7 +224,7 @@ void EventInfo::setBranches(TTree *tree)
   }
 
   if ( m_infoSwitch.m_anomDet ) {
-    tree->Branch("anomDet_adScore", &m_adScore);
+    tree->Branch("anomDet_adScore", &m_anomDet_adScore);
   }
 
   if ( m_infoSwitch.m_beamspotweight ) {
@@ -287,7 +287,7 @@ void EventInfo::clear()
   }
 
   if ( m_infoSwitch.m_anomDet ) {
-    m_adScore.clear();
+    m_anomDet_adScore.clear();
   }
 
   if ( m_infoSwitch.m_beamspotweight ) {
@@ -449,13 +449,15 @@ void EventInfo::FillEvent( const xAOD::EventInfo* eventInfo, xAOD::TEvent* event
   }
 
   if ( m_infoSwitch.m_anomDet && event ) {
+    m_anomDet_adScore.clear();
     const xAOD::TrigCompositeContainer* adCont = nullptr;
     HelperFunctions::retrieve( adCont, "HLT_AnomDet_ComboHypo", event, 0 );
     if ( adCont ) {
-      static SG::AuxElement::ConstAccessor< std::vector<float> > acc_adScore("adScore");
+      static SG::AuxElement::ConstAccessor< float > acc_adScore("adScore");
       for ( const auto comp : *adCont ) {
         if ( acc_adScore.isAvailable( *comp ) ) {
-          for ( const auto& val : acc_adScore( *comp ) ) m_adScore.push_back( val );
+          //for ( const auto& val : acc_adScore( *comp ) ) m_anomDet_adScore.push_back( val );
+          m_anomDet_adScore.push_back( acc_adScore( *comp ) );
         }
       }
     }
