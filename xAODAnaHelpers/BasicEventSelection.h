@@ -14,6 +14,8 @@
 // ROOT include(s):
 #include "TH1D.h"
 
+#include <map>
+
 // algorithm wrapper
 #include "xAODAnaHelpers/Algorithm.h"
 
@@ -185,6 +187,12 @@ class BasicEventSelection : public xAH::Algorithm
     */
     bool m_applyTriggerCut = false;
 
+    /// @brief Deterministic prescale applied after the trigger decision (>=1)
+    unsigned int m_triggerPrescale = 1;
+
+    /// @brief Comma-separated list of triggerName:prescale pairs overriding :cpp:member:`~BasicEventSelection::m_triggerPrescale`
+    std::string m_triggerPrescales = "";    
+
     /**
       @rst
         Save string of fired triggers matching :cpp:member:`~BasicEventSelection::m_triggerSelection`
@@ -235,6 +243,7 @@ class BasicEventSelection : public xAH::Algorithm
     std::set<std::pair<uint32_t,uint32_t> > m_RunNr_VS_EvtNr; //!
     // trigger unprescale chains
     std::vector<std::string> m_triggerUnprescaleList; //!
+    std::map<std::string, unsigned int> m_triggerPrescaleMap; //!
     // decisions of triggers which are saved but not cut on, converted into a list
     std::vector<std::string> m_extraTriggerSelectionList; //!
 

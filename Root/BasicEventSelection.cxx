@@ -554,6 +554,74 @@ EL::StatusCode BasicEventSelection :: initialize ()
     while (std::getline(ss, token, ',')) {
       m_extraTriggerSelectionList.push_back(token);
     }
+
+
+    if (m_triggerPrescale == 0) {
+      ANA_MSG_ERROR("m_triggerPrescale must be >= 1 (received 0)");
+      return EL::StatusCode::FAILURE;
+    }
+
+    if (m_triggerPrescale > 1) {
+      ANA_MSG_INFO("Applying global trigger prescale of " << m_triggerPrescale);
+    }
+
+    if (!m_triggerPrescales.empty()) {
+      std::istringstream prescaleStream(m_triggerPrescales);
+      while (std::getline(prescaleStream, token, ',')) {
+        if (token.empty()) continue;
+
+        size_t pos = token.find(':');
+        if (pos == std::string::npos) {
+          ANA_MSG_ERROR("Invalid trigger prescale specification '" << token
+                         << "'. Expected format <trigger>:<prescale> with entries separated by commas");
+          return EL::StatusCode::FAILURE;
+        }
+
+        std::string trigName = token.substr(0, pos);
+        std::string prescaleStr = token.substr(pos + 1);
+
+        auto trim = [](std::string& input) {
+          const auto begin = input.find_first_not_of(" \t");
+          if (begin == std::string::npos) {
+            input.clear();
+            return;
+          }
+          const auto end = input.find_last_not_of(" \t");
+          input = input.substr(begin, end - begin + 1);
+        };
+
+        trim(trigName);
+        trim(prescaleStr);
+
+        if (trigName.empty()) {
+          ANA_MSG_ERROR("Trigger name in prescale specification cannot be empty");
+          return EL::StatusCode::FAILURE;
+        }
+
+        unsigned long prescaleValue = 0;
+        try {
+          prescaleValue = std::stoul(prescaleStr);
+        } catch (const std::exception& e) {
+          ANA_MSG_ERROR("Failed to parse prescale value for trigger '" << trigName
+                         << "' from input '" << prescaleStr << "': " << e.what());
+          return EL::StatusCode::FAILURE;
+        }
+
+        if (prescaleValue == 0) {
+          ANA_MSG_ERROR("Configured prescale for trigger '" << trigName << "' must be >= 1");
+          return EL::StatusCode::FAILURE;
+        }
+
+        m_triggerPrescaleMap[trigName] = static_cast<unsigned int>(prescaleValue);
+      }
+
+      if (!m_triggerPrescaleMap.empty()) {
+        ANA_MSG_INFO("Configured trigger prescales:");
+        for (const auto& entry : m_triggerPrescaleMap) {
+          ANA_MSG_INFO("  " << entry.first << " : " << entry.second);
+        }
+      }
+    }
   }//end trigger configuration
 
   // 3.
@@ -1017,8 +1085,60 @@ EL::StatusCode BasicEventSelection :: execute ()
       // to being satisfied by the HLT leg(s) of the trigger chain
       // TODO: check performance of this method when using trigger chains with the SAME HLT leg but different L1 seed
       // e.g. HLT_j20_pf_ftf_L1J100 vs. HLT_j20_pf_ftf_L1HT190-J15s5pETA21
-      if ( (m_isTLAData && !triggerChainGroup->isPassed(TrigDefs::requireDecision)) || (!m_isTLAData && !triggerChainGroup->isPassed()) ) {
-      // if (!triggerChainGroup->isPassed(TrigDefs::requireDecision)) {
+      // if ( (m_isTLAData && !triggerChainGroup->isPassed(TrigDefs::requireDecision)) || (!m_isTLAData && !triggerChainGroup->isPassed()) ) { // probably I'll just add a PS check here
+      // // if (!triggerChainGroup->isPassed(TrigDefs::requireDecision)) {
+
+
+      const bool triggerGroupPassed = m_isTLAData ? triggerChainGroup->isPassed(TrigDefs::requireDecision) : triggerChainGroup->isPassed();
+      if ( !triggerGroupPassed ) {
+        wk()->skipEvent();
+        return EL::StatusCode::SUCCESS;
+      }
+
+      bool passesPrescale = true;
+      if ( m_triggerPrescale > 1 || !m_triggerPrescaleMap.empty() ) {
+        const uint64_t eventIdentifier = (static_cast<uint64_t>(eventInfo->runNumber()) << 32) ^ static_cast<uint64_t>(eventInfo->eventNumber());
+        const auto chainNames = triggerChainGroup->getListOfTriggers();
+
+        auto computeTriggerHash = [](const std::string& name) {
+          uint64_t hash = 1469598103934665603ull; // FNV offset basis
+          for (unsigned char c : name) {
+            hash ^= static_cast<uint64_t>(c);
+            hash *= 1099511628211ull; // FNV prime
+          }
+          return hash;
+        };
+
+        passesPrescale = false;
+        for ( const auto& trigName : chainNames ) {
+          const bool triggerPassed = m_isTLAData ? m_trigDecTool_handle->isPassed(trigName, TrigDefs::requireDecision)
+                                                 : m_trigDecTool_handle->isPassed(trigName);
+          if ( !triggerPassed ) continue;
+
+          unsigned int prescaleValue = m_triggerPrescale;
+          auto prescaleIt = m_triggerPrescaleMap.find(trigName);
+          if ( prescaleIt != m_triggerPrescaleMap.end() ) {
+            prescaleValue = prescaleIt->second;
+          }
+
+          if ( prescaleValue <= 1 ) {
+            passesPrescale = true;
+            break;
+          }
+
+          const uint64_t combinedHash = eventIdentifier ^ computeTriggerHash(trigName);
+          if ( combinedHash % prescaleValue == 0 ) {
+            passesPrescale = true;
+            break;
+          }
+        }
+
+        if ( !passesPrescale && m_triggerPrescaleMap.empty() ) {
+          passesPrescale = (eventIdentifier % m_triggerPrescale) == 0;
+        }
+      }
+
+      if ( !passesPrescale ) {
         wk()->skipEvent();
         return EL::StatusCode::SUCCESS;
       }
